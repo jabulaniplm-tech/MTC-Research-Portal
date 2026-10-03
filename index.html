@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MTC Research Supervision 2026 — Supervisor V8.4</title>
+<title>MTC Research Supervision 2026 — Portal V10</title>
 <style>
 :root{
   --mtc-navy:#0b2a5b;
@@ -143,9 +143,237 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--mtc-blue
 @keyframes mfade{from{opacity:0}to{opacity:1}}
 @keyframes mpop{from{transform:translateY(12px) scale(.98);opacity:0}to{transform:none;opacity:1}}
 @media(max-width:600px){.modal{max-height:92vh}.modal-overlay{padding:8px}}
+
+/* ================= V9 STUDENT-FRIENDLY ENTRY SCREEN ================= */
+body.v9-locked > .header,
+body.v9-locked > .container {
+  filter: blur(2px);
+  pointer-events: none;
+  user-select: none;
+}
+.v9-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(19,184,176,.18), transparent 32%),
+    radial-gradient(circle at 85% 85%, rgba(245,190,50,.16), transparent 34%),
+    rgba(5,16,35,.92);
+}
+.v9-gate.hidden { display:none; }
+.v9-panel {
+  width: min(560px, 100%);
+  background:#fff;
+  border-radius:24px;
+  overflow:hidden;
+  box-shadow:0 25px 80px rgba(0,0,0,.38);
+}
+.v9-brand {
+  padding:28px 24px 22px;
+  color:#fff;
+  text-align:center;
+  background:linear-gradient(135deg,#0b2a5b,#173f7a);
+  border-top:6px solid var(--mtc-gold);
+}
+.v9-brand .v9-logo {
+  width:72px;height:72px;margin:0 auto 12px;border-radius:50%;
+  background:#fff;border:4px solid var(--mtc-gold);
+  display:flex;align-items:center;justify-content:center;
+  color:#0b2a5b;font-weight:900;font-size:20px;
+  box-shadow:0 5px 18px #0004;
+}
+.v9-brand h1{margin:0;font-size:24px}
+.v9-brand p{margin:6px 0 0;opacity:.9;font-size:13px}
+.v9-content{padding:24px}
+.v9-question{text-align:center;font-size:20px;font-weight:800;color:#0b2a5b;margin:0 0 18px}
+.v9-role-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.v9-role{
+  border:2px solid #dbe4ef;border-radius:18px;background:#f8fafc;
+  padding:22px 14px;cursor:pointer;text-align:center;
+  transition:.18s ease;min-height:145px;
+}
+.v9-role:hover{transform:translateY(-2px);border-color:#0b2a5b;box-shadow:0 8px 24px #00000012}
+.v9-role .icon{font-size:42px;display:block;margin-bottom:9px}
+.v9-role strong{display:block;font-size:17px;color:#0b2a5b}
+.v9-role small{display:block;color:#64748b;margin-top:5px;line-height:1.35}
+.v9-form{display:none;margin-top:20px;padding:18px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0}
+.v9-form.open{display:block}
+.v9-form h3{margin:0 0 12px;color:#0b2a5b}
+.v9-form label{display:block;font-size:12px;font-weight:800;color:#475569;margin:10px 0 5px}
+.v9-form input,.v9-form select{
+  width:100%;box-sizing:border-box;padding:12px;border:1px solid #cbd5e1;
+  border-radius:10px;background:#fff;font-size:15px;
+}
+.v9-actions{display:flex;gap:9px;margin-top:14px}
+.v9-primary,.v9-secondary{
+  flex:1;border:0;border-radius:10px;padding:12px;font-weight:800;cursor:pointer
+}
+.v9-primary{background:#0b2a5b;color:#fff}.v9-secondary{background:#e2e8f0;color:#0f172a}
+.v9-msg{margin-top:10px;font-size:13px;font-weight:700;min-height:18px}
+.v9-note{text-align:center;color:#64748b;font-size:11px;margin-top:16px}
+.v9-back{margin-top:10px;text-align:center}
+.v9-back button{border:0;background:none;color:#0b2a5b;font-weight:800;cursor:pointer}
+.v9-lock{
+  display:inline-block;background:#fff7d6;color:#735400;border:1px solid #f3d36b;
+  border-radius:999px;padding:4px 9px;font-size:11px;margin-top:9px
+}
+@media(max-width:520px){
+  .v9-role-grid{grid-template-columns:1fr}
+  .v9-panel{border-radius:20px}
+  .v9-content{padding:18px}
+  .v9-role{min-height:120px}
+}
+
+
+.v9-cloud-status{
+  margin:10px 0 14px;padding:9px 11px;border-radius:10px;
+  background:#eef6ff;border:1px solid #cfe3ff;color:#17406f;
+  font-size:12px;font-weight:700;
+}
+.v9-profile{
+  display:none;margin-top:14px;padding:16px;border-radius:15px;
+  background:#f8fafc;border:1px solid #dbe4ef;
+}
+.v9-profile.open{display:block}
+.v9-profile h4{margin:0 0 12px;color:#0b2a5b;font-size:17px}
+.v9-profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.v9-profile-item{padding:9px;background:#fff;border-radius:9px;border:1px solid #e5e7eb}
+.v9-profile-item span{display:block;font-size:10px;color:#64748b;font-weight:800;text-transform:uppercase}
+.v9-profile-item strong{display:block;margin-top:3px;color:#172033;font-size:13px;word-break:break-word}
+.v9-edit-fields{display:none}
+.v9-edit-fields.open{display:block}
+.v9-small-btn{
+  margin-top:12px;border:1px solid #cbd5e1;background:#fff;color:#0b2a5b;
+  border-radius:9px;padding:9px 12px;font-weight:800;cursor:pointer
+}
+@media(max-width:520px){.v9-profile-grid{grid-template-columns:1fr}}
+
+
+/* ================= V10 ADDITIONS ================= */
+.nav button.hidden{display:none}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:4px 9px;border-radius:15px;background:#e2e8f0;color:#475569}
+.badge.ok{background:#e5f7f8;color:#17656d}.badge.warn{background:#fef3c7;color:#92400e}.badge.bad{background:#fee2e2;color:#991b1b}
+.chapter{border:1px solid #e5e7eb;border-radius:10px;padding:14px;margin-bottom:12px}
+.chapter-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.fb-item{border-left:5px solid var(--mtc-turquoise);background:#f8fafc;border-radius:8px;padding:12px 14px;margin-bottom:10px}
+.fb-item.revision{border-color:#f59e0b}
+.fb-meta{font-size:12px;color:#64748b;margin-bottom:6px}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.sup-pending{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #fde68a;background:#fffbeb;border-radius:10px;padding:12px;margin-bottom:8px}
+input[readonly]{background:#f1f5f9;color:#475569}
+button:disabled{opacity:.6;cursor:not-allowed}
+@media(max-width:600px){.sup-pending{flex-direction:column;align-items:flex-start}}
 </style>
 </head>
-<body>
+<body class="v9-locked">
+
+<!-- ================= SIGN-IN GATE ================= -->
+<div id="v9Gate" class="v9-gate" aria-modal="true" role="dialog">
+  <div class="v9-panel">
+    <div class="v9-brand">
+      <div class="v9-logo">MTC</div>
+      <h1>Research Supervision Portal</h1>
+      <p>Mutare Teachers' College</p>
+    </div>
+
+    <div class="v9-content">
+      <p class="v9-question" id="v9Question">Who are you?</p>
+
+      <div class="v9-role-grid" id="v9RoleGrid">
+        <button class="v9-role" type="button" id="v9SupervisorBtn">
+          <span class="icon">👨‍🏫</span><strong>Supervisor</strong>
+          <small>Dashboard, review and feedback</small>
+        </button>
+        <button class="v9-role" type="button" id="v9StudentBtn">
+          <span class="icon">🎓</span><strong>Student</strong>
+          <small>Your research, submissions and feedback</small>
+        </button>
+      </div>
+
+      <!-- Supervisor -->
+      <div class="v9-form" id="v9SupervisorForm">
+        <h3>🔐 Supervisor Login</h3>
+        <label for="v9SupervisorPassword">Supervisor password</label>
+        <input id="v9SupervisorPassword" type="password" autocomplete="current-password" placeholder="Enter password">
+        <div class="v9-actions">
+          <button class="v9-primary" type="button" id="v9SupervisorLogin">Sign in</button>
+          <button class="v9-secondary" type="button" id="v9SupervisorCancel">Back</button>
+        </div>
+        <div class="v9-msg" id="v9SupervisorMsg"></div>
+      </div>
+
+      <!-- Student -->
+      <div class="v9-form" id="v9StudentForm">
+        <h3>🎓 Student Sign-in</h3>
+
+        <div id="v9SignInBlock">
+          <label for="v9StudentSelect">Select your name</label>
+          <select id="v9StudentSelect"><option value="">-- Loading names... --</option></select>
+
+          <label for="v9StudentPin">Your PIN</label>
+          <input id="v9StudentPin" type="password" autocomplete="current-password" placeholder="Enter your PIN">
+
+          <div class="v9-actions">
+            <button class="v9-primary" type="button" id="v9StudentContinue">Sign in</button>
+            <button class="v9-secondary" type="button" id="v9StudentCancel">Back</button>
+          </div>
+          <div class="v9-actions">
+            <button class="v9-secondary" type="button" id="v9NewStudentBtn">➕ My name is not in the list</button>
+          </div>
+        </div>
+        <div class="v9-msg" id="v9StudentMsg"></div>
+
+        <!-- Register -->
+        <div id="v9NewStudentPanel" class="v9-form" style="margin-top:14px">
+          <h3>📝 Create Student Profile</h3>
+          <label for="v9NewSurname">Surname</label>
+          <input id="v9NewSurname" placeholder="Surname" maxlength="60">
+          <label for="v9NewFirstName">First Name</label>
+          <input id="v9NewFirstName" placeholder="First name" maxlength="60">
+          <label for="v9NewProgramme">Programme</label>
+          <input id="v9NewProgramme" placeholder="Programme" maxlength="100">
+          <label for="v9NewEmail">Email</label>
+          <input id="v9NewEmail" type="email" placeholder="student@example.com" maxlength="120">
+          <label for="v9NewPhone">Phone</label>
+          <input id="v9NewPhone" type="tel" placeholder="07XXXXXXXX" maxlength="30">
+          <label for="v9NewPin">Choose a PIN (6+ characters)</label>
+          <input id="v9NewPin" type="password" autocomplete="new-password" maxlength="64">
+          <label for="v9NewPin2">Repeat PIN</label>
+          <input id="v9NewPin2" type="password" autocomplete="new-password" maxlength="64">
+          <div class="v9-actions">
+            <button class="v9-primary" type="button" id="v9RegisterStudent">Create profile</button>
+            <button class="v9-secondary" type="button" id="v9CancelNewStudent">Cancel</button>
+          </div>
+          <div class="v9-msg" id="v9NewStudentMsg"></div>
+        </div>
+
+        <!-- Forced PIN change -->
+        <div id="v9ChangePinPanel" class="v9-form" style="margin-top:14px">
+          <h3>🔑 Choose a new PIN</h3>
+          <p class="muted small">Your supervisor gave you a temporary PIN. Please choose your own before continuing.</p>
+          <label for="v9ChangePin1">New PIN (6+ characters)</label>
+          <input id="v9ChangePin1" type="password" autocomplete="new-password" maxlength="64">
+          <label for="v9ChangePin2">Repeat new PIN</label>
+          <input id="v9ChangePin2" type="password" autocomplete="new-password" maxlength="64">
+          <div class="v9-actions">
+            <button class="v9-primary" type="button" id="v9ChangePinSave">Save and continue</button>
+          </div>
+          <div class="v9-msg" id="v9ChangePinMsg"></div>
+        </div>
+
+        <div class="v9-note">Forgot your PIN? Ask your supervisor to reset it.</div>
+      </div>
+
+      <div class="v9-back">
+        <button type="button" id="v9ResetChoice">↩ Change role</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="header" style="position:relative;overflow:hidden;">
   <div style="height:5px;background:var(--mtc-gold);position:absolute;top:0;left:0;right:0;"></div>
@@ -159,7 +387,7 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--mtc-blue
     </div>
     <div style="text-align:left;">
       <h1 style="margin:0;color:white;">Mutare Teachers' College</h1>
-      <p style="margin:3px 0 0;color:#e9f2ff;">Research Supervision Portal • V8.4 • File Upload</p>
+      <p style="margin:3px 0 0;color:#e9f2ff;">Research Supervision Portal</p>
     </div>
   </div>
   <div style="margin-top:10px;height:4px;background:var(--mtc-turquoise);"></div>
@@ -169,144 +397,170 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--mtc-blue
 
   <div class="cloud">
     <span id="cloudDot" class="dot"></span>
-    <strong>Cloud status:</strong>
-    <span id="cloudText">Not configured</span>
-    <span class="status-pill" id="queueStatus">0 unsent records</span>
-    <button type="button" class="action secondary" id="openDiag" style="margin-left:auto;padding:6px 11px;font-size:12px">🔧 Diagnostics</button>
+    <strong id="cloudText">Not signed in</strong>
+    <span class="status-pill" id="whoPill" style="display:none"></span>
+    <span style="margin-left:auto;display:flex;gap:8px">
+      <button type="button" class="action secondary hidden" id="openDiag" style="padding:6px 11px;font-size:12px">🔧 Diagnostics</button>
+      <button type="button" class="action secondary" id="signOutBtn" style="padding:6px 11px;font-size:12px">Sign out</button>
+    </span>
   </div>
-
 
   <div class="nav">
-    <button class="nav-btn active" data-page="dashboard">📊 Progress</button>
-    <button class="nav-btn" data-page="profile">👤 Profile</button>
-    <button class="nav-btn" data-page="topic">📋 Topic</button>
-    <button class="nav-btn" data-page="submission">📤 Submission</button>
-    <button class="nav-btn" data-page="feedback">💬 Feedback</button>
-    <button class="nav-btn" data-page="history">📝 History</button><button class="nav-btn" data-page="supervisor">👨‍🏫 Supervisor</button>
+    <button class="nav-btn active" data-page="dashboard" data-role="student">📊 Progress</button>
+    <button class="nav-btn" data-page="profile" data-role="student">👤 Profile</button>
+    <button class="nav-btn" data-page="topic" data-role="student">📋 Topic</button>
+    <button class="nav-btn" data-page="chapters" data-role="student">📚 Chapters</button>
+    <button class="nav-btn" data-page="submission" data-role="student">📤 Submission</button>
+    <button class="nav-btn" data-page="feedback" data-role="student">💬 Feedback</button>
+    <button class="nav-btn" data-page="history" data-role="student">📝 History</button>
+    <button class="nav-btn hidden" data-page="supervisor" data-role="supervisor">👨‍🏫 Supervisor</button>
   </div>
 
+  <!-- ===== STUDENT: PROGRESS ===== -->
   <section id="dashboard" class="page active">
     <div class="card">
-      <h2 class="section-title">Student Dashboard</h2>
+      <h2 class="section-title">My Dashboard</h2>
       <div class="info-grid">
-        <div class="info-box"><span class="label">Student</span><div class="value" id="dashName">Not registered</div></div>
+        <div class="info-box"><span class="label">Student</span><div class="value" id="dashName">—</div></div>
         <div class="info-box"><span class="label">Student ID</span><div class="value" id="dashId">—</div></div>
         <div class="info-box"><span class="label">Research Topic</span><div class="value" id="dashTopic">No topic submitted</div></div>
-        <div class="info-box"><span class="label">Current Stage</span><div class="value" id="dashCurrentStage">Research Topic</div></div>
+        <div class="info-box"><span class="label">Current Stage</span><div class="value" id="dashCurrentStage">—</div></div>
       </div>
       <br>
-      <div class="label">Overall progress</div>
+      <div class="label">Overall progress (stages approved by your supervisor)</div>
       <div class="progress"><div class="progress-bar" id="progressBar"></div></div>
       <div style="text-align:right;margin-top:5px;font-weight:700" id="progressText">0%</div>
     </div>
-
     <div class="card">
       <h2 class="section-title">Research Progress</h2>
       <div id="stages"></div>
     </div>
-
     <div class="card">
-      <h2 class="section-title">Current Action</h2>
-      <div class="notice" id="currentActionNotice">Submit your next research component through the <strong>Submission</strong> window. The submission record will be sent to the cloud database.</div>
+      <h2 class="section-title">What to do next</h2>
+      <div class="notice" id="currentActionNotice">Loading…</div>
     </div>
   </section>
 
+  <!-- ===== STUDENT: PROFILE ===== -->
   <section id="profile" class="page">
     <div class="card">
-      <h2 class="section-title">Student Details</h2>
-      <p class="muted">These details are stored locally first and then synchronized to the configured cloud database.</p>
+      <h2 class="section-title">My Details</h2>
+      <p class="muted">Your name and ID can only be changed by your supervisor.</p>
       <form id="studentForm">
         <div class="info-grid">
-          <div><label class="label">Full Name</label><input id="studentName" required></div>
-          <div><label class="label">Student ID</label><input id="studentId" required></div>
-          <div><label class="label">Cellphone Number</label><input id="cellphone" type="tel" required></div>
-          <div><label class="label">Year / Level</label><select id="year" required><option value="">Select</option><option>First Year</option><option>Second Year</option><option>Third Year</option><option>Fourth Year</option></select></div>
-          <div><label class="label">Semester</label><select id="semester" required><option value="">Select</option><option>Semester 1</option><option>Semester 2</option><option>Semester 3</option></select></div>
-          <div><label class="label">Email</label><input id="email" type="email"></div>
+          <div><label class="label" for="studentName">Full Name</label><input id="studentName" readonly></div>
+          <div><label class="label" for="studentId">Student ID</label><input id="studentId" readonly></div>
+          <div><label class="label" for="programme">Programme</label><input id="programme" maxlength="100"></div>
+          <div><label class="label" for="email">Email</label><input id="email" type="email" maxlength="120"></div>
+          <div><label class="label" for="phone">Phone</label><input id="phone" type="tel" maxlength="30"></div>
         </div><br>
         <button class="action" type="submit" id="saveProfile">SAVE DETAILS</button>
-        <button class="action secondary" type="button" id="editProfile" style="display:none">EDIT DETAILS</button>
         <div id="profileMsg" class="message"></div>
+      </form>
+    </div>
+    <div class="card">
+      <h2 class="section-title">Change my PIN</h2>
+      <form id="pinForm">
+        <div class="info-grid">
+          <div><label class="label" for="pinOld">Current PIN</label><input id="pinOld" type="password" autocomplete="current-password" maxlength="64"></div>
+          <div></div>
+          <div><label class="label" for="pinNew1">New PIN (6+ characters)</label><input id="pinNew1" type="password" autocomplete="new-password" maxlength="64"></div>
+          <div><label class="label" for="pinNew2">Repeat new PIN</label><input id="pinNew2" type="password" autocomplete="new-password" maxlength="64"></div>
+        </div><br>
+        <button class="action" type="submit">CHANGE PIN</button>
+        <div id="pinMsg" class="message"></div>
       </form>
     </div>
   </section>
 
+  <!-- ===== STUDENT: TOPIC ===== -->
   <section id="topic" class="page">
     <div class="card">
       <h2 class="section-title">Research Topic</h2>
+      <p class="muted" id="topicSaved"></p>
       <form id="topicForm">
-        <label class="label">Proposed Research Topic</label>
-        <textarea id="researchTopic" rows="4" required></textarea><br><br>
-        <label class="label">Research Area / Field</label>
-        <input id="researchArea"><br><br>
-        <label class="label">Reason for submission / update</label>
-        <textarea id="topicNotes" rows="3"></textarea><br>
+        <label class="label" for="researchTitle">Proposed Research Topic</label>
+        <textarea id="researchTitle" rows="3" maxlength="300" required></textarea><br><br>
+        <label class="label" for="problemStatement">Problem Statement</label>
+        <textarea id="problemStatement" rows="4" maxlength="5000"></textarea><br><br>
+        <label class="label" for="objectives">Objectives</label>
+        <textarea id="objectives" rows="4" maxlength="5000"></textarea><br><br>
+        <label class="label" for="researchQuestions">Research Questions</label>
+        <textarea id="researchQuestions" rows="4" maxlength="5000"></textarea><br>
         <button class="action" type="submit" id="saveTopic">SAVE TOPIC</button>
-        <button class="action secondary" type="button" id="editTopic" style="display:none">EDIT TOPIC</button>
         <div id="topicMsg" class="message"></div>
       </form>
     </div>
   </section>
 
+  <!-- ===== STUDENT: CHAPTERS ===== -->
+  <section id="chapters" class="page">
+    <div class="card">
+      <h2 class="section-title">My Chapters</h2>
+      <p class="muted">Keep notes and mark where you are in each chapter. Upload the actual document under <strong>Submission</strong>.</p>
+      <div id="chapterList"></div>
+    </div>
+  </section>
+
+  <!-- ===== STUDENT: SUBMISSION ===== -->
   <section id="submission" class="page">
     <div class="card">
-      <h2 class="section-title">Research Submission</h2>
-      <p class="muted">The document is uploaded securely to Google Drive through the Apps Script backend, while its metadata remains in Google Sheets. GitHub can then archive the stored document.</p>
+      <h2 class="section-title">Submit a Document</h2>
+      <p class="muted">PDF, DOC or DOCX, up to 10 MB. Your document goes to a private folder that only you and your supervisor can access. Version numbers are assigned automatically.</p>
       <form id="submissionForm">
-        <label class="label">Research Section</label>
-        <select id="submissionStage" required>
-          <option value="Problem Statement">Problem Statement</option>
-          <option value="Literature Review">Literature Review</option>
-          <option value="Methodology">Methodology</option>
-          <option value="Data">Data</option>
-          <option value="Results">Results</option>
-          <option value="Conclusions & Recommendations">Conclusions & Recommendations</option>
-          <option value="References & Final Submission">References & Final Submission</option>
-        </select><br><br>
-        <label class="label">Submission Type</label>
-        <select id="submissionType" required>
-          <option value="Initial Submission">Initial Submission</option>
-          <option value="Resubmission after Corrections">Resubmission after Corrections</option>
-          <option value="Final Submission">Final Submission</option>
-        </select><br><br>
-        <label class="label">Version</label>
-        <input id="version" type="number" min="1" value="1" required><br><br>
-        <label class="label">Document</label>
-        <input id="documentFile" type="file" accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"><br><br>
-        <label class="label">Comment to Supervisor</label>
-        <textarea id="submissionComment" rows="4" placeholder="Briefly explain what you are submitting or what you changed."></textarea><br>
-        <button class="action" type="submit">SUBMIT RESEARCH</button>
+        <label class="label" for="submissionStage">Research Section</label>
+        <select id="submissionStage" required></select>
+        <div class="muted small" id="versionHint" style="margin-top:6px"></div><br>
+        <label class="label" for="documentFile">Document</label>
+        <input id="documentFile" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"><br><br>
+        <label class="label" for="submissionComment">Comment to Supervisor</label>
+        <textarea id="submissionComment" rows="4" maxlength="1000" placeholder="Briefly explain what you are submitting or what you changed."></textarea><br>
+        <button class="action" type="submit" id="submitBtn">SUBMIT DOCUMENT</button>
         <div id="submissionMsg" class="message"></div>
       </form>
     </div>
   </section>
 
+  <!-- ===== STUDENT: FEEDBACK ===== -->
   <section id="feedback" class="page">
     <div class="card">
       <h2 class="section-title">Supervisor Feedback</h2>
-      <div id="feedbackList">
-        <div class="notice">No cloud feedback has been received yet.</div>
+      <div id="feedbackList"><div class="notice">No feedback yet.</div></div>
+    </div>
+  </section>
+
+  <!-- ===== STUDENT: HISTORY ===== -->
+  <section id="history" class="page">
+    <div class="card">
+      <h2 class="section-title">My Submission History</h2>
+      <div id="historyList"><div class="muted">No submissions yet.</div></div>
+    </div>
+  </section>
+
+  <!-- ===== SUPERVISOR ===== -->
+  <section id="supervisor" class="page">
+    <div class="sup-hero"><h2>👨‍🏫 Supervisor Mode</h2><p id="supHeroText">Loading…</p></div>
+
+    <div class="sup-card" id="supPendingCard" style="display:none">
+      <h3 style="margin:0 0 10px">⏳ Waiting for your approval</h3>
+      <div id="supPending"></div>
+    </div>
+
+    <div class="sup-card">
+      <div id="supStudent" class="sup-student"><div class="muted">Loading students…</div></div>
+      <div class="sup-nav"><button type="button" id="supPrev">◀ PREVIOUS</button><button type="button" id="supNext">NEXT ▶</button></div>
+      <div id="supCount" class="sup-count">Loading…</div>
+      <div id="supCloudMsg" class="sup-msg"></div>
+      <div class="btn-row">
+        <button class="action" type="button" id="supOpenSubs" disabled>📥 SUBMISSIONS</button>
+        <button class="action green" type="button" id="supTopicFb" disabled>💬 FEEDBACK ON TOPIC</button>
+        <button class="action secondary" type="button" id="supResetPin" disabled>🔑 RESET PIN</button>
+        <button class="action secondary" type="button" id="supToggleStatus" disabled>⛔ SUSPEND</button>
+        <button class="action secondary" type="button" id="supRefresh">↻ REFRESH</button>
       </div>
     </div>
   </section>
-
-  <section id="history" class="page">
-    <div class="card">
-      <h2 class="section-title">Supervision History</h2>
-      <div id="historyList"><div class="muted">No local history yet.</div></div>
-    </div>
-  </section>
-
-  <section id="supervisor" class="page">
-<div class="sup-hero"><h2>👨‍🏫 Supervisor Mode</h2><p>Students and submissions load directly from the cloud.</p></div>
-<div class="sup-card">
-<div id="supStudent" class="sup-student"><div class="muted">Loading students...</div></div>
-<div class="sup-nav"><button type="button" id="supPrev">◀ PREVIOUS</button><button type="button" id="supNext">NEXT ▶</button></div>
-<div id="supCount" class="sup-count">Loading...</div><div id="supCloudMsg" class="sup-msg"></div>
-<button class="action" type="button" id="supOpenSubs" style="width:100%;margin-top:14px" disabled>📥 VIEW SUBMISSIONS</button>
-</div>
-</section>
-<div class="footer">Research Supervision Portal — Cloud Prototype</div>
+  <div class="footer">Research Supervision Portal</div>
 </div>
 
 <!-- ================= POPUP WINDOWS ================= -->
@@ -314,41 +568,22 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--mtc-blue
   <div class="modal modal-dark" role="dialog" aria-modal="true" aria-label="Diagnostics">
     <div class="modal-head"><h2>🔧 Diagnostics</h2><button type="button" class="modal-x" data-close aria-label="Close">✕</button></div>
     <div class="modal-body">
-  <section class="diagnostic-panel" aria-label="Automatic diagnostics">
-    <div class="diagnostic-title">🔧 Diagnostic build</div>
-
-    <div class="diag-grid">
-      <div class="diag-row">
-        <span class="diag-label">☁️ Cloud</span>
-        <span id="diagCloud" class="diag-status diag-wait">not tested</span>
-      </div>
-      <div class="diag-row">
-        <span class="diag-label">👨‍🏫 Supervisor API</span>
-        <span id="diagSupervisor" class="diag-status diag-wait">not tested</span>
-      </div>
-      <div class="diag-row">
-        <span class="diag-label">👤 Student</span>
-        <span id="diagStudent" class="diag-status diag-wait">not loaded</span>
-      </div>
-      <div class="diag-row">
-        <span class="diag-label">📊 Local storage</span>
-        <span id="diagStorage" class="diag-status diag-wait">not tested</span>
-      </div>
-      <div class="diag-row">
-        <span class="diag-label">🌐 Network</span>
-        <span id="diagNetwork" class="diag-status diag-wait">not tested</span>
-      </div>
-    </div>
-
-    <div class="diag-actions">
-      <button type="button" id="runDiagnostics">▶ RUN AUTO TEST</button>
-      <button type="button" id="copyDiagLog">COPY LOG</button>
-      <button type="button" id="exportDiagLog">EXPORT REPORT</button>
-      <button type="button" id="clearDiagLog">CLEAR LOG</button>
-    </div>
-
-    <div id="diagLog" class="diag-log">Diagnostic build ready.</div>
-  </section>
+      <section class="diagnostic-panel" aria-label="Diagnostics">
+        <div class="diag-grid">
+          <div class="diag-row"><span class="diag-label">☁️ Cloud (public health)</span><span id="diagCloud" class="diag-status diag-wait">not tested</span></div>
+          <div class="diag-row"><span class="diag-label">👨‍🏫 Supervisor API</span><span id="diagSupervisor" class="diag-status diag-wait">not tested</span></div>
+          <div class="diag-row"><span class="diag-label">👤 Session</span><span id="diagStudent" class="diag-status diag-wait">not tested</span></div>
+          <div class="diag-row"><span class="diag-label">📊 Browser storage</span><span id="diagStorage" class="diag-status diag-wait">not tested</span></div>
+          <div class="diag-row"><span class="diag-label">🌐 Network</span><span id="diagNetwork" class="diag-status diag-wait">not tested</span></div>
+        </div>
+        <div class="diag-actions">
+          <button type="button" id="runDiagnostics">▶ RUN TEST</button>
+          <button type="button" id="copyDiagLog">COPY LOG</button>
+          <button type="button" id="exportDiagLog">EXPORT REPORT</button>
+          <button type="button" id="clearDiagLog">CLEAR LOG</button>
+        </div>
+        <div id="diagLog" class="diag-log">Diagnostics ready. Press RUN TEST.</div>
+      </section>
     </div>
   </div>
 </div>
@@ -366,10 +601,10 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--mtc-blue
     <div class="modal-body">
       <div id="supReviewInfo" class="muted"></div><br>
       <div class="sup-row">
-        <div><label class="label">Decision</label><select id="supDecision"><option>Under Review</option><option>Approved</option><option>Revision Required</option><option>Comment / Guidance</option></select></div>
-        <div><label class="label">Supervisor Name</label><input id="supSupervisorName" placeholder="Your name"></div>
+        <div><label class="label" for="supDecision">Decision</label><select id="supDecision"><option>Under Review</option><option>Approved</option><option>Revision Required</option><option>Comment / Guidance</option></select></div>
+        <div><label class="label" for="supSupervisorName">Supervisor Name</label><input id="supSupervisorName" placeholder="Your name" maxlength="100"></div>
       </div><br>
-      <label class="label">Feedback to Student</label><textarea id="supFeedback" rows="5" placeholder="Write your feedback here..."></textarea>
+      <label class="label" for="supFeedback">Feedback to Student</label><textarea id="supFeedback" rows="5" maxlength="10000" placeholder="Write your feedback here..."></textarea>
       <div id="supSendMsg" class="sup-msg"></div>
     </div>
     <div class="modal-foot">
@@ -379,942 +614,628 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:var(--mtc-blue
   </div>
 </div>
 
+<div class="modal-overlay top" id="supPinModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Temporary PIN">
+    <div class="modal-head"><h2>🔑 Temporary PIN</h2><button type="button" class="modal-x" data-close aria-label="Close">✕</button></div>
+    <div class="modal-body">
+      <div id="supPinInfo"></div>
+      <p class="muted small">Give this PIN to the student privately. It is shown only once, and the student must choose a new PIN at their next sign-in.</p>
+    </div>
+    <div class="modal-foot"><button type="button" class="action" data-close>DONE</button></div>
+  </div>
+</div>
+
 <script>
 /* ==========================================================
-   CLOUD CONFIGURATION
-   ----------------------------------------------------------
-   1. GOOGLE_SHEETS_URL:
-      Put your deployed Google Apps Script Web App URL here.
-
-   2. FILE_API_URL:
-      Put your secure backend URL here later for GitHub/file
-      storage. DO NOT put a GitHub personal access token in
-      this HTML file.
+   MTC RESEARCH SUPERVISION PORTAL — V10 (secure front end)
+   HTML -> Apps Script (token-based) -> Drive -> GitHub
+   - No password or student data lives in this file.
+   - Only a session token is kept, in sessionStorage (cleared when the tab closes).
+   - Every permission check is made by the server; this page only displays.
    ========================================================== */
-
 const CLOUD = {
-  GOOGLE_SHEETS_URL: "https://script.google.com/macros/s/AKfycbw1PxPV8SU0tbvDYKsPxM7xvGJX-puZtE9khtcJPCOhxIKY1R_y_E8Zu77E9UHSfYyb/exec",
-  MAX_FILE_SIZE: 10 * 1024 * 1024 // 10 MB per submission
+  URL: "https://script.google.com/macros/s/AKfycbw1PxPV8SU0tbvDYKsPxM7xvGJX-puZtE9khtcJPCOhxIKY1R_y_E8Zu77E9UHSfYyb/exec",
+  MAX_FILE_SIZE: 10 * 1024 * 1024,
+  TIMEOUT: 30000
+};
+const STAGES = ["Research Topic","Problem Statement","Literature Review","Methodology","Data","Results","Conclusions & Recommendations","References & Final Submission"];
+const SECTIONS = STAGES.slice(1);
+const CHAPTER_STATUSES = ["Not started","Drafting","Ready for review"];
+const SESSION_KEY = "mtc_session";
+
+const state = {
+  role: null, token: null,
+  profile: null, research: null, chapters: [], submissions: [], feedback: [],
+  sup: {students:[], research:[], chapters:[], submissions:[], feedback:[], index:0, current:null, review:null}
 };
 
-const STORAGE = {
-  profile: "rs_profile",
-  topic: "rs_topic",
-  history: "rs_history",
-  queue: "rs_cloud_queue"
-};
+const $ = id => document.getElementById(id);
+function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])); }
+function fmtDate(v){ if(!v) return ""; const d = new Date(v); return isNaN(d) ? String(v) : d.toLocaleString(); }
+function key(v){ return String(v ?? "").trim().toLowerCase(); }
+function setMsg(el, text, kind){ el.textContent = text; el.className = el.className.replace(/\b(ok|error)\b/g,"").trim() + (kind ? " " + kind : ""); }
+function safeLink(u){ return /^https:\/\/(drive|docs)\.google\.com\//.test(String(u||"")) ? u : ""; }
 
-const stages = [
-  "Research Topic",
-  "Problem Statement",
-  "Literature Review",
-  "Methodology",
-  "Data",
-  "Results",
-  "Conclusions & Recommendations",
-  "References & Final Submission"
-];
+/* ---------------- API ---------------- */
+async function api(action, data, timeout){
+  const body = Object.assign({}, data || {}, {action: action});
+  if(state.token) body.token = state.token;
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), timeout || CLOUD.TIMEOUT);
+  let r;
+  try{
+    r = await fetch(CLOUD.URL, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(body), signal:ctl.signal});
+  }catch(e){
+    if(e.name === "AbortError") throw new Error("The server took too long to respond. Please try again.");
+    throw new Error("Could not reach the server. Check your internet connection.");
+  }finally{ clearTimeout(timer); }
+  let d;
+  try{ d = await r.json(); }catch(e){ throw new Error("The server returned an unexpected response."); }
+  if(d.ok === false){
+    const err = new Error(d.error || "Request failed");
+    err.code = d.code;
+    if(d.code === "AUTH" && state.token && action !== "studentLogin" && action !== "supervisorLogin") expireSession();
+    throw err;
+  }
+  return d;
+}
 
-let stageState = JSON.parse(localStorage.getItem("rs_stage_state") || "{}");
-
-function getProfile(){
-  return JSON.parse(localStorage.getItem(STORAGE.profile) || "null");
-}
-function getTopic(){
-  return JSON.parse(localStorage.getItem(STORAGE.topic) || "null");
-}
-function saveHistory(item){
-  const h = JSON.parse(localStorage.getItem(STORAGE.history) || "[]");
-  h.unshift(item);
-  localStorage.setItem(STORAGE.history, JSON.stringify(h.slice(0,100)));
-  renderHistory();
-}
-function queueRecord(record){
-  const q = JSON.parse(localStorage.getItem(STORAGE.queue) || "[]");
-  q.push(record);
-  localStorage.setItem(STORAGE.queue, JSON.stringify(q));
-  updateCloudStatus();
-}
-function getQueue(){
-  return JSON.parse(localStorage.getItem(STORAGE.queue) || "[]");
+function saveSession(){ try{ sessionStorage.setItem(SESSION_KEY, JSON.stringify({role:state.role, token:state.token})); }catch(e){} }
+function clearSession(){ try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){} }
+function expireSession(){
+  clearSession();
+  try{ sessionStorage.setItem("mtc_notice", "Your session has expired. Please sign in again."); }catch(e){}
+  location.reload();
 }
 
 /* ---------------- NAVIGATION ---------------- */
-document.querySelectorAll(".nav-btn").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-    document.querySelectorAll(".nav-btn").forEach(b=>b.classList.remove("active"));
-    document.getElementById(btn.dataset.page).classList.add("active");
-    btn.classList.add("active");
-    if(btn.dataset.page==="supervisor") supLoad();
-    window.scrollTo({top:0,behavior:"smooth"});
-  });
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.page === id));
+  $(id).classList.add("active");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+document.querySelectorAll(".nav-btn").forEach(btn => btn.addEventListener("click", () => {
+  showPage(btn.dataset.page);
+  if(btn.dataset.page === "supervisor" && state.role === "supervisor" && !state.sup.students.length) supLoad();
+}));
+
+/* ---------------- MODALS ---------------- */
+function openModal(id){ const m=$(id); if(!m) return; m.classList.add("open"); m.setAttribute("aria-hidden","false"); document.body.style.overflow="hidden"; }
+function closeModal(id){ const m=$(id); if(!m) return; m.classList.remove("open"); m.setAttribute("aria-hidden","true"); if(!document.querySelector(".modal-overlay.open")) document.body.style.overflow=""; }
+document.querySelectorAll(".modal-overlay").forEach(ov => {
+  ov.addEventListener("click", e => { if(e.target === ov) closeModal(ov.id); });
+  ov.querySelectorAll("[data-close]").forEach(x => x.addEventListener("click", () => closeModal(ov.id)));
+});
+document.addEventListener("keydown", e => {
+  if(e.key !== "Escape") return;
+  const open = document.querySelectorAll(".modal-overlay.open");
+  if(open.length) closeModal(open[open.length-1].id);
 });
 
-/* ---------------- CLOUD SYNC ---------------- */
-async function sendToCloud(record){
-  if(!CLOUD.GOOGLE_SHEETS_URL){
-    queueRecord(record);
-    return {queued:true};
-  }
-
-  const response = await fetch(CLOUD.GOOGLE_SHEETS_URL,{
-    method:"POST",
-    headers:{"Content-Type":"text/plain;charset=utf-8"},
-    body:JSON.stringify(record)
-  });
-
-  const text = await response.text();
-
-  if(!response.ok){
-    throw new Error("Cloud request failed: HTTP " + response.status);
-  }
-
-  let data;
-  try{
-    data = JSON.parse(text);
-  }catch(err){
-    throw new Error(
-      "Cloud returned non-JSON response. HTTP " + response.status
-    );
-  }
-
-  if(data.ok === false || data.success === false){
-    throw new Error(
-      data.error ||
-      ("Cloud rejected the request: " + (data.action || record.action || "unknown action"))
-    );
-  }
-
-  return {
-    sent:true,
-    response:data
-  };
+/* =========================================================
+   STUDENT: DATA + RENDERING
+   ========================================================= */
+async function loadStudentData(){
+  const res = await Promise.all([
+    api("getMyProfile"), api("getMyResearch"), api("getMyChapters"),
+    api("getMySubmissions"), api("getMyFeedback")
+  ]);
+  state.profile = res[0].profile;
+  state.research = res[1].research;
+  state.chapters = res[2].chapters || [];
+  state.submissions = res[3].submissions || [];
+  state.feedback = res[4].feedback || [];
+  renderStudentAll();
+}
+function renderStudentAll(){
+  renderDashboard(); renderProfile(); renderTopic(); renderChapters();
+  renderSubmissionForm(); renderFeedback(); renderHistory();
 }
 
-async function flushQueue(){
-  if(!CLOUD.GOOGLE_SHEETS_URL) return;
-  const q = getQueue();
-  if(!q.length) return;
-
-  const remaining = [];
-
-  for(const record of q){
-    try{
-      await sendToCloud(record);
-    }catch(e){
-      remaining.push(record);
-    }
+/* Work out the state of one stage from the server's own records. */
+function stageInfo(stage){
+  const byTime = (a,b) => String(b.timestamp||"").localeCompare(String(a.timestamp||""));
+  const decisions = state.feedback.filter(f => f.stage === stage && (f.status === "Approved" || f.status === "Revision Required")).sort(byTime);
+  const subs = state.submissions.filter(s => s.stage === stage).sort(byTime);
+  const dec = decisions[0], sub = subs[0];
+  if(dec && (!sub || String(dec.timestamp) >= String(sub.timestamp)))
+    return dec.status === "Approved"
+      ? {cls:"approved", icon:"✓", label:"APPROVED", text:"Approved by supervisor"}
+      : {cls:"revision", icon:"!", label:"REVISION REQUIRED", text:"Corrections required, then resubmit"};
+  if(sub) return {cls:"pending", icon:"→", label:"SUBMITTED", text:"Awaiting supervisor review"};
+  if(stage === "Research Topic"){
+    if(state.research && state.research.researchTitle) return {cls:"pending", icon:"→", label:"SAVED", text:"Topic saved; awaiting supervisor feedback"};
+    return {cls:"locked", icon:"•", label:"NOT STARTED", text:"Enter your research topic"};
   }
-
-  localStorage.setItem(STORAGE.queue,JSON.stringify(remaining));
-  updateCloudStatus();
+  const ch = state.chapters.find(c => c.chapter === stage);
+  if(ch && ch.status === "Ready for review") return {cls:"pending", icon:"•", label:"READY", text:"Marked ready. Upload it under Submission"};
+  if(ch && ch.status === "Drafting") return {cls:"pending", icon:"•", label:"IN PROGRESS", text:"You are working on this chapter"};
+  return {cls:"locked", icon:"•", label:"NOT STARTED", text:"Not started yet"};
 }
 
-function updateCloudStatus(){
-  const configured = !!CLOUD.GOOGLE_SHEETS_URL;
-  const queue = getQueue().length;
-  document.getElementById("queueStatus").textContent =
-    queue + (queue===1 ? " unsent record" : " unsent records");
-
-  document.getElementById("cloudText").textContent =
-    configured ? "Google Sheets endpoint configured" : "Local testing mode";
-
-  document.getElementById("cloudDot").className =
-    "dot " + (configured ? "online" : "offline");
-}
-
-
-/* ---------------- DIAGNOSTIC BUILD ---------------- */
-
-const DIAG_TIMEOUT_MS = 10000;
-let diagnosticRunning = false;
-
-function diagTime(){
-  return new Date().toLocaleTimeString();
-}
-
-function diagLog(message){
-  const box = document.getElementById("diagLog");
-  if(!box) return;
-  box.textContent += `\n[${diagTime()}] ${message}`;
-  box.scrollTop = box.scrollHeight;
-}
-
-function setDiag(id, state, text){
-  const el = document.getElementById(id);
-  if(!el) return;
-  el.className = "diag-status " + (
-    state === "testing" ? "diag-testing" :
-    state === "ok" ? "diag-ok" :
-    state === "error" ? "diag-error" : "diag-wait"
-  );
-  el.textContent = text;
-}
-
-function fetchWithTimeout(url, options={}, timeout=DIAG_TIMEOUT_MS){
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeout);
-
-  return fetch(url, {...options, signal:controller.signal})
-    .finally(() => clearTimeout(timer));
-}
-
-async function diagGetJson(action, timeout){
-  const url = CLOUD.GOOGLE_SHEETS_URL + "?action=" + action + "&_=" + Date.now();
-  const t0 = performance.now();
-  const response = await fetchWithTimeout(url, {method:"GET", cache:"no-store"}, timeout);
-  const text = await response.text();
-  const ms = Math.round(performance.now() - t0);
-  if(!response.ok) throw new Error("HTTP " + response.status + " " + response.statusText);
-  let data;
-  try{ data = JSON.parse(text); }
-  catch(e){ throw new Error("Response was not JSON (possibly a Google login/error page). Check deployment access = Anyone."); }
-  if(data.success === false) throw new Error(data.error || "API returned success=false");
-  return {data, ms};
-}
-
-function diagErr(err, ms){
-  return err.name === "AbortError" ? "TIMEOUT after " + ms + " ms" : err.message;
-}
-
-async function diagnosticCloudTest(){
-  setDiag("diagCloud","testing","testing...");
-  setDiag("diagSupervisor","testing","testing...");
-  diagLog("Cloud test started.");
-  diagLog("V8.3 FIXED: FULL CAPABILITY + DEPLOYMENT CONSISTENCY CHECK.");
-
-  if(!CLOUD.GOOGLE_SHEETS_URL){
-    setDiag("diagCloud","error","not configured");
-    setDiag("diagSupervisor","error","not configured");
-    diagLog("CLOUD.GOOGLE_SHEETS_URL is empty.");
-    return false;
-  }
-
-  let healthData = null;
-  let supervisorData = null;
-  let healthOK = false;
-  let supervisorOK = false;
-
-  // TEST A — health endpoint
-  const healthStart = performance.now();
-  try{
-    const result = await diagGetJson("health", DIAG_TIMEOUT_MS);
-    healthData = result.data;
-    healthOK = true;
-
-    setDiag("diagCloud","ok","OK • " + result.ms + " ms");
-    diagLog("TEST A PASSED: health endpoint reachable (" + result.ms + " ms).");
-    diagLog("HTTP 200; valid JSON received.");
-    diagLog("Service: " + (healthData.service || "not reported"));
-
-    if(healthData.version){
-      diagLog("Health version: " + healthData.version);
-    }else{
-      diagLog("WARNING: health response has no version field.");
-    }
-
-    if(healthData.build){
-      diagLog("Health build: " + healthData.build);
-    }else if(healthData.apiBuild){
-      diagLog("Health build: " + healthData.apiBuild);
-    }else{
-      diagLog("NOTE: health response has no build field.");
-    }
-
-    diagLog("Health supervisorRead: " +
-      (healthData.supervisorRead === true ? "true" : "missing/false"));
-
-  }catch(err){
-    const ms = Math.round(performance.now() - healthStart);
-    setDiag("diagCloud","error", err.name === "AbortError" ? "TIMEOUT" : "FAILED");
-    setDiag("diagSupervisor","error","not reached");
-    diagLog("TEST A FAILED: " + diagErr(err, ms));
-    return false;
-  }
-
-  // TEST B — actual supervisor endpoint used by Supervisor Mode
-  const supStart = performance.now();
-  try{
-    const result = await diagGetJson("supervisorData", 30000);
-    supervisorData = result.data;
-
-    if(!Array.isArray(supervisorData.students) ||
-       !Array.isArray(supervisorData.submissions)){
-      setDiag("diagSupervisor","error","bad data");
-      diagLog("TEST B FAILED: supervisorData has no students/submissions arrays.");
-      diagLog("Returned keys: " + Object.keys(supervisorData).join(", "));
-      return healthOK;
-    }
-
-    supervisorOK = supervisorData.supervisorRead === true;
-    diagLog("TEST B PASSED: supervisorData returned " +
-      supervisorData.students.length + " students and " +
-      supervisorData.submissions.length + " submissions (" +
-      result.ms + " ms).");
-
-    if(result.ms > 8000){
-      diagLog("WARNING: supervisorData is slow (" + result.ms +
-        " ms). Large sheets may eventually cause timeouts.");
-    }
-
-    const supVersion = supervisorData.version || supervisorData.apiVersion || "";
-    const supBuild = supervisorData.build || supervisorData.apiBuild || "";
-
-    if(supVersion) diagLog("Supervisor version: " + supVersion);
-    else diagLog("WARNING: supervisor response has no version field.");
-
-    if(supBuild) diagLog("Supervisor build: " + supBuild);
-    else diagLog("NOTE: supervisor response has no build field.");
-
-    diagLog("Supervisor supervisorRead: " +
-      (supervisorData.supervisorRead === true ? "true" : "missing/false"));
-
-    if(supervisorData.students.length === 0){
-      diagLog("WARNING: Students array is empty.");
-    }else{
-      const first = supervisorData.students[0];
-      if(!("studentId" in first) || !("studentName" in first)){
-        diagLog("WARNING: student records need studentId and studentName.");
-      }
-    }
-
-    if(supervisorData.submissions.length){
-      const firstSubmission = supervisorData.submissions[0];
-      if(!("studentId" in firstSubmission)){
-        diagLog("WARNING: submissions have no studentId, so matching may fail.");
-      }
-    }
-
-    setDiag(
-      "diagSupervisor",
-      supervisorData.students.length ? "ok" : "error",
-      supervisorData.students.length
-        ? ("OK • " + supervisorData.students.length + " students")
-        : "no students"
-    );
-
-  }catch(err){
-    const ms = Math.round(performance.now() - supStart);
-    setDiag("diagSupervisor","error",
-      err.name === "AbortError" ? "TIMEOUT • 30 s" : "FAILED");
-    diagLog("TEST B FAILED: " + diagErr(err, ms));
-  }
-
-  // TEST C — deployment identity/capability consistency.
-  diagLog("TEST C: checking deployment identity and capabilities...");
-
-  const healthVersion = healthData?.version || healthData?.apiVersion || "";
-  const supVersion = supervisorData?.version || supervisorData?.apiVersion || "";
-  const healthBuild = healthData?.build || healthData?.apiBuild || "";
-  const supBuild = supervisorData?.build || supervisorData?.apiBuild || "";
-
-  if(healthData?.supervisorRead === true){
-    diagLog("✓ Health reports supervisorRead=true.");
-  }else{
-    diagLog("⚠ Health does not report supervisorRead=true.");
-  }
-
-  if(supervisorData?.supervisorRead === true){
-    diagLog("✓ Supervisor response reports supervisorRead=true.");
-  }else{
-    diagLog("⚠ Supervisor response does not report supervisorRead=true.");
-  }
-
-  if(healthVersion && supVersion){
-    if(healthVersion === supVersion){
-      diagLog("✓ Health/Supervisor version match: " + healthVersion);
-    }else{
-      diagLog("⚠ Version mismatch: health=" + healthVersion +
-        ", supervisor=" + supVersion);
-    }
-  }else{
-    diagLog("NOTE: version comparison skipped because one endpoint did not report a version.");
-  }
-
-  if(healthBuild && supBuild){
-    if(healthBuild === supBuild){
-      diagLog("✓ Health/Supervisor build match: " + healthBuild);
-    }else{
-      diagLog("⚠ Build mismatch: health=" + healthBuild +
-        ", supervisor=" + supBuild);
-    }
-  }
-
-  // Important: no hard-coded "expected V2" or "expected V2.1".
-  // Any declared version is accepted; capability and consistency are what matter.
-  const capabilityOK =
-    healthOK &&
-    supervisorData &&
-    Array.isArray(supervisorData.students) &&
-    Array.isArray(supervisorData.submissions) &&
-    healthData?.supervisorRead === true &&
-    supervisorData?.supervisorRead === true;
-
-  if(capabilityOK){
-    diagLog("✓ CLOUD SYSTEM READY: API, supervisor access and data structures are operational.");
-    if(healthVersion) diagLog("Active API version accepted: " + healthVersion);
-    return true;
-  }
-
-  diagLog("CLOUD SYSTEM NOT READY: one or more required capabilities are missing.");
-  return false;
-}
-
-function diagnosticStudentTest(){
-  const p = getProfile();
-
-  if(!p){
-    setDiag("diagStudent","error","not loaded");
-    diagLog("Student test: no local student profile found.");
-    return false;
-  }
-
-  const missing = ["studentName","studentId"].filter(k => !String(p[k] || "").trim());
-
-  if(missing.length){
-    setDiag("diagStudent","error","incomplete");
-    diagLog("Student test FAILED: missing " + missing.join(", ") + ".");
-    return false;
-  }
-
-  setDiag("diagStudent","ok","loaded");
-  diagLog(`Student loaded: ${p.studentName} (${p.studentId}).`);
-  return true;
-}
-
-function diagnosticStorageTest(){
-  try{
-    const key = "__mtc_diag_" + Date.now();
-    localStorage.setItem(key,"ok");
-    const value = localStorage.getItem(key);
-    localStorage.removeItem(key);
-
-    if(value !== "ok") throw new Error("localStorage read/write mismatch");
-
-    setDiag("diagStorage","ok","OK");
-    diagLog("Local storage test PASSED.");
-    return true;
-  }catch(err){
-    setDiag("diagStorage","error","FAILED");
-    diagLog("Local storage test FAILED: " + err.message);
-    return false;
-  }
-}
-
-function diagnosticNetworkTest(){
-  if(!navigator.onLine){
-    setDiag("diagNetwork","error","offline");
-    diagLog("Browser reports OFFLINE.");
-    return false;
-  }
-
-  setDiag("diagNetwork","ok","online");
-  diagLog("Network test: browser reports ONLINE.");
-  return true;
-}
-
-async function runAutomaticDiagnostics(){
-  if(diagnosticRunning) return;
-
-  diagnosticRunning = true;
-  const button = document.getElementById("runDiagnostics");
-  if(button) button.disabled = true;
-
-  document.getElementById("diagLog").textContent =
-    `[${diagTime()}] AUTO TEST STARTED`;
-
-  setDiag("diagCloud","testing","testing...");
-  setDiag("diagStudent","testing","checking...");
-  setDiag("diagStorage","testing","checking...");
-  setDiag("diagNetwork","testing","checking...");
-  setDiag("diagSupervisor","testing","checking...");
-
-  const networkOK = diagnosticNetworkTest();
-  const storageOK = diagnosticStorageTest();
-  const studentOK = diagnosticStudentTest();
-
-  /*
-   * Cloud is deliberately tested LAST.
-   * Most importantly, it has a hard 10-second timeout.
-   * A failed cloud test therefore cannot freeze the whole diagnostic.
-   */
-  const cloudOK = await diagnosticCloudTest();
-
-  const allOK = networkOK && storageOK && studentOK && cloudOK;
-  diagLog(
-    `AUTO TEST COMPLETE: network=${networkOK ? "OK":"FAIL"}, ` +
-    `storage=${storageOK ? "OK":"FAIL"}, ` +
-    `student=${studentOK ? "OK":"FAIL"}, ` +
-    `cloud=${cloudOK ? "OK":"FAIL"}.`
-  );
-  diagLog(allOK
-    ? "🟢 SYSTEM READY — all automatic checks passed."
-    : "🔴 SYSTEM NOT READY — use COPY LOG or EXPORT REPORT for the exact failure details.");
-
-  diagnosticRunning = false;
-  if(button) button.disabled = false;
-}
-
-document.getElementById("runDiagnostics").addEventListener(
-  "click", runAutomaticDiagnostics
-);
-
-document.getElementById("clearDiagLog").addEventListener("click", ()=>{
-  document.getElementById("diagLog").textContent =
-    `[${diagTime()}] Diagnostic log cleared.`;
-});
-
-document.getElementById("copyDiagLog").addEventListener("click", async ()=>{
-  const text = document.getElementById("diagLog").textContent;
-  try{
-    await navigator.clipboard.writeText(text);
-    diagLog("Diagnostic log copied to clipboard.");
-  }catch(e){
-    // Fallback for local/mobile browsers that block navigator.clipboard.
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    try{
-      document.execCommand("copy");
-      diagLog("Diagnostic log copied using browser fallback.");
-    }catch(err){
-      diagLog("COPY FAILED: " + err.message);
-    }
-    ta.remove();
-  }
-});
-
-document.getElementById("exportDiagLog").addEventListener("click", ()=>{
-  const report = [
-    "MTC RESEARCH SUPERVISION PORTAL — DIAGNOSTIC REPORT V8.3 FIXED",
-    "Generated: " + new Date().toString(),
-    "Page: " + location.href,
-    "Browser: " + navigator.userAgent,
-    "Online: " + navigator.onLine,
-    "Screen: " + screen.width + "x" + screen.height,
-    "Viewport: " + window.innerWidth + "x" + window.innerHeight,
-    "Student: " + (getProfile()?.studentName || "not loaded"),
-    "Student ID: " + (getProfile()?.studentId || "not loaded"),
-    "Cloud endpoint configured: " + (!!CLOUD.GOOGLE_SHEETS_URL),
-    "Queued records: " + getQueue().length,
-    "",
-    "================ DIAGNOSTIC LOG ================",
-    document.getElementById("diagLog").textContent,
-    "================================================="
-  ].join("\n");
-
-  const blob = new Blob([report], {type:"text/plain;charset=utf-8"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "MTC_Research_Supervision_Diagnostic_" +
-    new Date().toISOString().replace(/[:.]/g,"-") + ".txt";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
-  diagLog("Diagnostic report exported as a text file.");
-});
-
-
-window.addEventListener("online", ()=>{
-  diagLog("Browser network changed to ONLINE.");
-});
-
-window.addEventListener("offline", ()=>{
-  setDiag("diagNetwork","error","offline");
-  diagLog("Browser network changed to OFFLINE.");
-});
-
-/* Run automatically once after the dashboard has loaded. */
-setTimeout(runAutomaticDiagnostics, 500);
-
-/* ---------------- PROFILE ---------------- */
-const profileFields=["studentName","studentId","cellphone","year","semester","email"];
-
-function updateProfileDisplay(){
-  const p=getProfile();
-  document.getElementById("dashName").textContent=p?.studentName||"Not registered";
-  document.getElementById("dashId").textContent=p?.studentId||"—";
-}
-function lockProfile(locked){
-  profileFields.forEach(id=>document.getElementById(id).disabled=locked);
-  document.getElementById("saveProfile").style.display=locked?"none":"inline-block";
-  document.getElementById("editProfile").style.display=locked?"inline-block":"none";
-}
-function loadProfile(){
-  const p=getProfile();
-  if(!p) return;
-  profileFields.forEach(id=>{
-    if(p[id]!==undefined) document.getElementById(id).value=p[id];
-  });
-  updateProfileDisplay(); lockProfile(true);
-}
-document.getElementById("studentForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-  const p={};
-  profileFields.forEach(id=>p[id]=document.getElementById(id).value.trim());
-  p.recordType="student";
-  p.action="upsert";
-  p.updatedAt=new Date().toISOString();
-  localStorage.setItem(STORAGE.profile,JSON.stringify(p));
-  updateProfileDisplay(); lockProfile(true);
-  try{
-    const result=await sendToCloud(p);
-    document.getElementById("profileMsg").className="message ok";
-    document.getElementById("profileMsg").textContent=result.queued?
-      "Saved on this device. It will sync when the cloud endpoint is configured.":
-      "Details saved and synchronized to the cloud.";
-  }catch(err){
-    queueRecord(p);
-    document.getElementById("profileMsg").className="message error";
-    document.getElementById("profileMsg").textContent="Saved locally; cloud synchronization will retry.";
-  }
-});
-document.getElementById("editProfile").addEventListener("click",()=>{
-  lockProfile(false);
-  document.getElementById("profileMsg").textContent="";
-});
-
-/* ---------------- TOPIC ---------------- */
-const topicFields=["researchTopic","researchArea","topicNotes"];
-function updateTopicDisplay(){
-  const t=getTopic();
-  document.getElementById("dashTopic").textContent=t?.researchTopic||"No topic submitted";
-}
-function lockTopic(locked){
-  topicFields.forEach(id=>document.getElementById(id).disabled=locked);
-  document.getElementById("saveTopic").style.display=locked?"none":"inline-block";
-  document.getElementById("editTopic").style.display=locked?"inline-block":"none";
-}
-function loadTopic(){
-  const t=getTopic();
-  if(!t) return;
-  topicFields.forEach(id=>{
-    if(t[id]!==undefined) document.getElementById(id).value=t[id];
-  });
-  updateTopicDisplay(); lockTopic(true);
-}
-document.getElementById("topicForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-  const t={};
-  topicFields.forEach(id=>t[id]=document.getElementById(id).value.trim());
-  t.recordType="research";
-  t.action="upsert";
-  const profile=getProfile();
-  t.studentId=profile?.studentId||"";
-  t.studentName=profile?.studentName||"";
-  t.status="Submitted";
-  t.updatedAt=new Date().toISOString();
-  localStorage.setItem(STORAGE.topic,JSON.stringify(t));
-  updateTopicDisplay(); lockTopic(true);
-  saveHistory({date:new Date().toLocaleString(),text:"Research topic submitted/updated."});
-  try{
-    const result=await sendToCloud(t);
-    document.getElementById("topicMsg").className="message ok";
-    document.getElementById("topicMsg").textContent=result.queued?
-      "Topic saved locally and queued for cloud synchronization.":
-      "Topic saved and synchronized to the cloud.";
-  }catch(err){
-    queueRecord(t);
-    document.getElementById("topicMsg").className="message error";
-    document.getElementById("topicMsg").textContent="Topic saved locally; cloud synchronization will retry.";
-  }
-});
-document.getElementById("editTopic").addEventListener("click",()=>{
-  lockTopic(false); document.getElementById("topicMsg").textContent="";
-});
-
-/* ---------------- SUBMISSION ---------------- */
-function setStageState(stage, state){
-  stageState[stage]=state;
-  localStorage.setItem("rs_stage_state",JSON.stringify(stageState));
-  renderStages();
-}
-
-async function fileToDataUrl(file){
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onload=()=>resolve(reader.result);
-    reader.onerror=()=>reject(reader.error || new Error("Could not read selected file."));
-    reader.readAsDataURL(file);
-  });
-}
-
-document.getElementById("submissionForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-
-  const p=getProfile();
-
-  if(!p?.studentId){
-    document.getElementById("submissionMsg").className="message error";
-    document.getElementById("submissionMsg").textContent=
-      "Please complete your Student Profile first.";
-    return;
-  }
-
-  const file=document.getElementById("documentFile").files[0];
-  const stage=document.getElementById("submissionStage").value;
-  const submissionType=document.getElementById("submissionType").value;
-  const version=Number(document.getElementById("version").value||1);
-  const submittedAt=new Date().toISOString();
-  const button=e.submitter || document.querySelector("#submissionForm button[type='submit']");
-
-  if(!file){
-    document.getElementById("submissionMsg").className="message error";
-    document.getElementById("submissionMsg").textContent=
-      "Please select the research document before submitting.";
-    return;
-  }
-
-  /*
-   * Apps Script receives the actual document as base64.
-   * This keeps the existing architecture intact:
-   * HTML → Apps Script → Drive → GitHub.
-   *
-   * For unusually large files, the browser can hit Apps Script payload
-   * limits; the user is given a clear message instead of a false success.
-   */
-  const MAX_CLIENT_FILE_BYTES = 8 * 1024 * 1024;
-
-  if(file.size > MAX_CLIENT_FILE_BYTES){
-    document.getElementById("submissionMsg").className="message error";
-    document.getElementById("submissionMsg").textContent=
-      "This document is larger than 8 MB. Please reduce the file size and try again.";
-    return;
-  }
-
-  try{
-    if(button) button.disabled=true;
-
-    document.getElementById("submissionMsg").className="message";
-    document.getElementById("submissionMsg").textContent=
-      "Preparing document for secure upload...";
-
-    const fileData=await fileToDataUrl(file);
-
-    const record={
-      recordType:"submission",
-      action:"created",
-      studentId:p.studentId,
-      studentName:p.studentName,
-      stage:stage,
-      submissionType:submissionType,
-      version:version,
-      fileName:file.name,
-      fileSize:file.size,
-      fileType:file.type || "application/octet-stream",
-      comment:document.getElementById("submissionComment").value.trim(),
-      submittedAt:submittedAt,
-      reviewStatus:"Awaiting Supervisor Review",
-      fileUploadStatus:"ready_for_drive",
-      fileData:fileData
-    };
-
-    const result=await sendToCloud(record);
-
-    setStageState(stage,"Submitted");
-
-    saveHistory({
-      date:new Date().toLocaleString(),
-      text:`${stage} — ${submissionType}, version ${version} submitted (${file.name}).`
-    });
-
-    document.getElementById("submissionMsg").className="message ok";
-
-    const sid=result.response?.submissionId || "";
-    const status=result.response?.overallStatus || "";
-
-    document.getElementById("submissionMsg").textContent =
-      "✓ Submission accepted" +
-      (sid ? " • " + sid : "") +
-      (status ? " • " + status : "");
-
-    document.getElementById("submissionComment").value="";
-    document.getElementById("documentFile").value="";
-
-  }catch(err){
-    queueRecord({
-      recordType:"submission",
-      action:"created",
-      studentId:p.studentId,
-      studentName:p.studentName,
-      stage:stage,
-      submissionType:submissionType,
-      version:version,
-      fileName:file.name,
-      fileSize:file.size,
-      fileType:file.type || "application/octet-stream",
-      comment:document.getElementById("submissionComment").value.trim(),
-      submittedAt:submittedAt,
-      reviewStatus:"Awaiting Supervisor Review",
-      fileUploadStatus:"queued_after_failure"
-    });
-
-    document.getElementById("submissionMsg").className="message error";
-    document.getElementById("submissionMsg").textContent=
-      "Cloud submission failed. The submission has been queued locally. Error: " +
-      err.message;
-
-  }finally{
-    if(button) button.disabled=false;
-  }
-});
-
-/* ---------------- HISTORY ---------------- */
-function renderHistory(){
-  const h=JSON.parse(localStorage.getItem(STORAGE.history)||"[]");
-  const box=document.getElementById("historyList");
-  if(!h.length){box.innerHTML='<div class="muted">No local history yet.</div>';return;}
-  box.innerHTML=h.map(x=>`<div class="history-item"><strong>${escapeHtml(x.date)}</strong><br>${escapeHtml(x.text)}</div>`).join("");
-}
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
-}
-
-/* ---------------- PROGRESS ---------------- */
-function renderStages(){
-  const box=document.getElementById("stages");
-  const topic=getTopic();
-  if(topic && !stageState["Research Topic"]) stageState["Research Topic"]="Submitted";
-
-  box.innerHTML=stages.map((s,i)=>{
-    let state=stageState[s]||"Locked";
-    if(i===0 && topic) state=stageState[s]||"Submitted";
-
-    let cls="pending", icon="•", status=state.toUpperCase();
-    if(state==="Approved"){cls="approved";icon="✓";}
-    else if(state==="Revision Required"){cls="revision";icon="!";}
-    else if(state==="Submitted"){cls="pending";icon="→";}
-    else if(state==="Pending"){cls="pending";icon="•";}
-    else {cls="locked";icon="🔒";}
-
-    return `<div class="stage ${cls}">
-      <div class="stage-icon">${icon}</div>
-      <div><div class="stage-name">${escapeHtml(s)}</div>
-      <div class="stage-status">${state==="Approved"?"Approved by supervisor":state==="Revision Required"?"Corrections required":state==="Submitted"?"Awaiting supervisor review":"Not yet available"}</div></div>
-      <div class="status">${status}</div>
-    </div>`;
+function renderDashboard(){
+  const p = state.profile || {};
+  $("dashName").textContent = p.studentName || "—";
+  $("dashId").textContent = p.studentId || "—";
+  $("dashTopic").textContent = (state.research && state.research.researchTitle) || "No topic submitted";
+
+  const infos = STAGES.map(stageInfo);
+  $("stages").innerHTML = STAGES.map((s,i) => {
+    const x = infos[i];
+    return '<div class="stage '+x.cls+'"><div class="stage-icon">'+x.icon+'</div><div><div class="stage-name">'+esc(s)+'</div><div class="stage-status">'+esc(x.text)+'</div></div><div class="status">'+esc(x.label)+'</div></div>';
   }).join("");
 
-  const approved=stages.filter(s=>stageState[s]==="Approved").length;
-  const pct=Math.round((approved/stages.length)*100);
-  document.getElementById("progressBar").style.width=pct+"%";
-  document.getElementById("progressText").textContent=pct+"%";
+  const approved = infos.filter(x => x.label === "APPROVED").length;
+  const pct = Math.round(approved / STAGES.length * 100);
+  $("progressBar").style.width = pct + "%";
+  $("progressText").textContent = pct + "%";
 
-  const currentStage=stages.find(s=>!stageState[s] || ["Locked","Pending"].includes(stageState[s])) || "Completed";
-  const dashCurrent=document.getElementById("dashCurrentStage");
-  if(dashCurrent) dashCurrent.textContent=currentStage;
+  const revIdx = infos.findIndex(x => x.label === "REVISION REQUIRED");
+  const curIdx = infos.findIndex(x => x.label !== "APPROVED");
+  $("dashCurrentStage").textContent = curIdx === -1 ? "Completed" : STAGES[curIdx];
+  if(revIdx !== -1) $("currentActionNotice").innerHTML = 'Your supervisor asked for corrections on <strong>'+esc(STAGES[revIdx])+'</strong>. Read the <strong>Feedback</strong> page, then resubmit under <strong>Submission</strong>.';
+  else if(curIdx === -1) $("currentActionNotice").innerHTML = 'All stages are approved. Well done!';
+  else $("currentActionNotice").innerHTML = 'Your next stage is <strong>'+esc(STAGES[curIdx])+'</strong>. Use <strong>'+(curIdx===0?'Topic':'Chapters</strong> and <strong>Submission')+'</strong> when you are ready.';
+}
 
-  const notice=document.getElementById("currentActionNotice");
-  if(notice){
-    const next=stages.find(s=>!stageState[s] || ["Locked","Pending"].includes(stageState[s]));
-    if(next){
-      notice.innerHTML=`Your next research stage is <strong>${escapeHtml(next)}</strong>. Use the <strong>Submission</strong> window when it is ready.`;
-    }else{
-      notice.innerHTML=`All research stages have been submitted. Monitor the <strong>Feedback</strong> window for supervisor responses.`;
-    }
+function renderProfile(){
+  const p = state.profile || {};
+  $("studentName").value = p.studentName || "";
+  $("studentId").value = p.studentId || "";
+  $("programme").value = p.programme || "";
+  $("email").value = p.email || "";
+  $("phone").value = p.phone || "";
+}
+$("studentForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = $("saveProfile"), msg = $("profileMsg");
+  btn.disabled = true; setMsg(msg, "Saving…");
+  try{
+    const r = await api("updateMyProfile", {programme:$("programme").value, email:$("email").value, phone:$("phone").value});
+    state.profile = r.profile; renderProfile();
+    setMsg(msg, "✓ Details saved.", "ok");
+  }catch(err){ setMsg(msg, err.message, "error"); }
+  finally{ btn.disabled = false; }
+});
+
+$("pinForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = $("pinMsg"), a = $("pinNew1").value, b = $("pinNew2").value;
+  if(a !== b){ setMsg(msg, "The new PINs do not match.", "error"); return; }
+  setMsg(msg, "Saving…");
+  try{
+    await api("changePin", {oldPin:$("pinOld").value, newPin:a});
+    $("pinForm").reset(); setMsg(msg, "✓ PIN changed.", "ok");
+  }catch(err){ setMsg(msg, err.message, "error"); }
+});
+
+function renderTopic(){
+  const r = state.research || {};
+  $("researchTitle").value = r.researchTitle || "";
+  $("problemStatement").value = r.problemStatement || "";
+  $("objectives").value = r.objectives || "";
+  $("researchQuestions").value = r.researchQuestions || "";
+  $("topicSaved").textContent = r.updatedAt ? "Last saved: " + fmtDate(r.updatedAt) : "Not saved yet.";
+}
+$("topicForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const btn = $("saveTopic"), msg = $("topicMsg");
+  const data = {
+    researchTitle: $("researchTitle").value, problemStatement: $("problemStatement").value,
+    objectives: $("objectives").value, researchQuestions: $("researchQuestions").value
+  };
+  btn.disabled = true; setMsg(msg, "Saving…");
+  try{
+    const r = await api("saveResearch", data);
+    state.research = Object.assign({}, data, {updatedAt: r.savedAt});
+    renderTopic(); renderDashboard();
+    setMsg(msg, "✓ Topic saved.", "ok");
+  }catch(err){ setMsg(msg, err.message, "error"); }
+  finally{ btn.disabled = false; }
+});
+
+function renderChapters(){
+  $("chapterList").innerHTML = SECTIONS.map((s,i) => {
+    const ch = state.chapters.find(c => c.chapter === s) || {};
+    const info = stageInfo(s);
+    const opts = CHAPTER_STATUSES.map(o => '<option'+((ch.status||"Not started")===o?' selected':'')+'>'+o+'</option>').join("");
+    return '<div class="chapter" data-stage="'+esc(s)+'">'+
+      '<div class="chapter-head"><strong>'+(i+1)+'. '+esc(s)+'</strong><span class="badge '+(info.cls==="approved"?"ok":info.cls==="revision"?"warn":"")+'">'+esc(info.label)+'</span></div>'+
+      '<label class="label">My progress</label><select class="ch-status">'+opts+'</select>'+
+      '<label class="label" style="margin-top:10px">My notes</label><textarea class="ch-notes" rows="4" maxlength="20000" placeholder="Notes, outline or key points for this chapter">'+esc(ch.notes||"")+'</textarea>'+
+      '<div class="btn-row"><button type="button" class="action ch-save">SAVE</button></div>'+
+      '<div class="message ch-msg">'+(ch.updatedAt?'<span class="muted small" style="font-weight:400">Last saved: '+esc(fmtDate(ch.updatedAt))+'</span>':'')+'</div></div>';
+  }).join("");
+}
+$("chapterList").addEventListener("click", async e => {
+  const btn = e.target.closest(".ch-save"); if(!btn) return;
+  const card = btn.closest(".chapter"), stage = card.dataset.stage, msg = card.querySelector(".ch-msg");
+  const status = card.querySelector(".ch-status").value, notes = card.querySelector(".ch-notes").value;
+  btn.disabled = true; setMsg(msg, "Saving…");
+  try{
+    const r = await api("saveChapter", {chapter:stage, status:status, notes:notes});
+    const rec = {chapter:stage, status:status, notes:notes, updatedAt:r.savedAt};
+    const i = state.chapters.findIndex(c => c.chapter === stage);
+    if(i >= 0) state.chapters[i] = rec; else state.chapters.push(rec);
+    renderDashboard();
+    card.querySelector(".badge").textContent = stageInfo(stage).label;
+    setMsg(msg, "✓ Saved.", "ok");
+  }catch(err){ setMsg(msg, err.message, "error"); }
+  finally{ btn.disabled = false; }
+});
+
+/* ---- Submission ---- */
+function renderSubmissionForm(){
+  const sel = $("submissionStage"), keep = sel.value;
+  sel.innerHTML = SECTIONS.map(s => '<option>'+esc(s)+'</option>').join("");
+  if(keep) sel.value = keep;
+  updateVersionHint();
+}
+function updateVersionHint(){
+  const stage = $("submissionStage").value;
+  const n = state.submissions.filter(s => s.stage === stage).length;
+  $("versionHint").textContent = n ? "You have submitted this section " + n + (n===1?" time":" times") + ". This upload will be saved as version " + (n+1) + "." : "This will be your first submission for this section (version 1).";
+}
+$("submissionStage").addEventListener("change", updateVersionHint);
+
+function fileToDataUrl(file){
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = () => reject(r.error || new Error("Could not read the selected file."));
+    r.readAsDataURL(file);
+  });
+}
+$("submissionForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = $("submissionMsg"), btn = $("submitBtn");
+  const file = $("documentFile").files[0], stage = $("submissionStage").value;
+  if(!file){ setMsg(msg, "Please choose your document first.", "error"); return; }
+  const ext = (file.name.split(".").pop() || "").toLowerCase();
+  if(["pdf","doc","docx"].indexOf(ext) === -1){ setMsg(msg, "Only PDF, DOC and DOCX files are accepted.", "error"); return; }
+  if(file.size > CLOUD.MAX_FILE_SIZE){ setMsg(msg, "This file is larger than 10 MB. Please reduce its size.", "error"); return; }
+  btn.disabled = true; setMsg(msg, "Uploading… please keep this page open.");
+  try{
+    const fileData = await fileToDataUrl(file);
+    const r = await api("uploadSubmission", {stage:stage, fileName:file.name, comment:$("submissionComment").value, fileData:fileData}, 120000);
+    setMsg(msg, "✓ Received at " + new Date(r.receivedAt).toLocaleTimeString() + " — " + r.stage + ", version " + r.version + " (reference " + r.submissionId + ")", "ok");
+    $("submissionComment").value = ""; $("documentFile").value = "";
+    try{ state.submissions = (await api("getMySubmissions")).submissions || []; }catch(ignore){}
+    renderDashboard(); renderChapters(); renderHistory(); updateVersionHint();
+  }catch(err){
+    setMsg(msg, "Not submitted: " + err.message + " Your file is still selected. Please try again.", "error");
+  }finally{ btn.disabled = false; }
+});
+
+function renderFeedback(){
+  const list = state.feedback.slice().sort((a,b) => String(b.timestamp||"").localeCompare(String(a.timestamp||"")));
+  if(!list.length){ $("feedbackList").innerHTML = '<div class="notice">No feedback yet. Your supervisor\'s comments will appear here.</div>'; return; }
+  $("feedbackList").innerHTML = list.map(f =>
+    '<div class="fb-item '+(f.status==="Revision Required"?"revision":"")+'"><div class="fb-meta"><strong>'+esc(f.stage||"General")+'</strong> · <span class="badge '+(f.status==="Approved"?"ok":f.status==="Revision Required"?"warn":"")+'">'+esc(f.status||"Comment")+'</span> · '+esc(f.supervisor||"Supervisor")+' · '+esc(fmtDate(f.timestamp))+'</div><div style="white-space:pre-wrap;line-height:1.5">'+esc(f.feedback||"")+'</div></div>'
+  ).join("");
+}
+function renderHistory(){
+  const list = state.submissions.slice().sort((a,b) => String(b.timestamp||"").localeCompare(String(a.timestamp||"")));
+  if(!list.length){ $("historyList").innerHTML = '<div class="muted">No submissions yet.</div>'; return; }
+  $("historyList").innerHTML = list.map(s =>
+    '<div class="history-item"><strong>'+esc(s.stage)+' — version '+esc(s.version)+'</strong><br>'+esc(s.fileName)+'<br><span class="muted small">'+esc(fmtDate(s.timestamp))+' · '+esc(s.reviewStatus||"Awaiting Supervisor Review")+(s.archived?' · archived':'')+'</span></div>'
+  ).join("");
+}
+
+/* =========================================================
+   SUPERVISOR
+   ========================================================= */
+async function supLoad(keepId){
+  $("supStudent").innerHTML = '<div class="muted">Loading students…</div>';
+  try{
+    const d = await api("supervisorData", {}, 60000);
+    const S = state.sup;
+    S.students = d.students || []; S.research = d.research || []; S.chapters = d.chapters || [];
+    S.submissions = d.submissions || []; S.feedback = d.feedback || [];
+    S.students.sort((a,b) => String(a.studentName).localeCompare(String(b.studentName)));
+    const i = keepId ? S.students.findIndex(s => key(s.studentId) === key(keepId)) : 0;
+    S.index = i >= 0 ? i : 0;
+    $("supHeroText").textContent = S.students.length + " students · " + S.submissions.length + " submissions · " + ((d.counts && d.counts.pendingApproval) || 0) + " waiting for approval";
+    supRenderPending(); supRender();
+  }catch(err){
+    $("supStudent").innerHTML = '<div class="error"><strong>Could not load students.</strong><br>'+esc(err.message)+'</div>';
+    $("supHeroText").textContent = "Load failed";
   }
 }
-
-/* SUPERVISOR V6 */
-let supStudents=[],supSubmissions=[],supIndex=0,supCurrentStudent=null,supCurrentSubmission=null;
-function supKey(v){return String(v??"").trim().toLowerCase();}
-/* ---- Popup helpers ---- */
-function openModal(id){
- const m=document.getElementById(id); if(!m) return;
- m.classList.add("open"); m.setAttribute("aria-hidden","false");
- document.body.style.overflow="hidden";
+function supRenderPending(){
+  const pend = state.sup.students.filter(s => key(s.status) === "pending");
+  $("supPendingCard").style.display = pend.length ? "block" : "none";
+  $("supPending").innerHTML = pend.map(s =>
+    '<div class="sup-pending"><div><strong>'+esc(s.studentName)+'</strong><br><span class="muted small">'+esc(s.studentId)+' · '+esc(s.programme||"")+' · '+esc(s.email||"")+'</span></div><div class="btn-row" style="margin:0"><button class="action" type="button" data-approve="'+esc(s.studentId)+'">APPROVE</button><button class="action secondary" type="button" data-reject="'+esc(s.studentId)+'">REJECT</button></div></div>'
+  ).join("");
 }
-function closeModal(id){
- const m=document.getElementById(id); if(!m) return;
- m.classList.remove("open"); m.setAttribute("aria-hidden","true");
- if(!document.querySelector(".modal-overlay.open")) document.body.style.overflow="";
-}
-document.querySelectorAll(".modal-overlay").forEach(function(ov){
- ov.addEventListener("click",function(e){ if(e.target===ov) closeModal(ov.id); });
- ov.querySelectorAll("[data-close]").forEach(function(x){ x.addEventListener("click",function(){ closeModal(ov.id); }); });
+$("supPending").addEventListener("click", async e => {
+  const a = e.target.closest("[data-approve]"), r = e.target.closest("[data-reject]");
+  const btn = a || r; if(!btn) return;
+  const id = a ? a.dataset.approve : r.dataset.reject;
+  btn.disabled = true;
+  try{ await api("setStudentStatus", {studentId:id, status: a ? "Active" : "Suspended"}); await supLoad(state.sup.current && state.sup.current.studentId); }
+  catch(err){ alert(err.message); btn.disabled = false; }
 });
-document.addEventListener("keydown",function(e){
- if(e.key!=="Escape") return;
- const open=document.querySelectorAll(".modal-overlay.open");
- if(open.length) closeModal(open[open.length-1].id);
-});
-document.getElementById("openDiag").addEventListener("click",function(){ openModal("diagModal"); });
-document.getElementById("supOpenSubs").addEventListener("click",function(){ openModal("supSubsModal"); });
-
-/* ---- Supervisor data ---- */
-async function supGet(action){
- const r=await fetchWithTimeout(CLOUD.GOOGLE_SHEETS_URL+"?action="+encodeURIComponent(action)+"&_="+Date.now(),{method:"GET",cache:"no-store"},30000);
- const t=await r.text(); if(!r.ok)throw new Error("HTTP "+r.status);
- let d;try{d=JSON.parse(t)}catch(e){throw new Error("Cloud returned invalid JSON.")} if(d.success===false)throw new Error(d.error||"Cloud request failed");return d;
-}
-async function supLoad(retries){
- if(retries===undefined) retries=1;
- document.getElementById("supStudent").innerHTML='<div class="muted">Loading students...</div>';
- try{
-  const d=await supGet("supervisorData");
-  supStudents=Array.isArray(d.students)?d.students:[];
-  supSubmissions=Array.isArray(d.submissions)?d.submissions:[];
-  supIndex=0;supRender();
-  document.getElementById("supCloudMsg").textContent="☁️ "+supStudents.length+" students loaded.";
- }catch(e){
-  if(retries>0) return supLoad(retries-1);
-  const msg=e.name==="AbortError"?"Timed out waiting for the cloud.":e.message;
-  document.getElementById("supStudent").innerHTML='<div class="error"><strong>Could not load students.</strong><br>'+escapeHtml(msg)+'</div>';
-  document.getElementById("supOpenSubs").disabled=true;
-  diagLog("SUPERVISOR LOAD FAILED: "+msg);
- }
-}
 function supRender(){
- const b=document.getElementById("supStudent"),p=document.getElementById("supPrev"),n=document.getElementById("supNext"),o=document.getElementById("supOpenSubs");
- closeModal("supReviewModal");closeModal("supSubsModal");
- if(!supStudents.length){b.innerHTML='<div class="muted">No students found.</div>';p.disabled=n.disabled=o.disabled=true;document.getElementById("supCount").textContent="0 students";return}
- supCurrentStudent=supStudents[supIndex];
- b.innerHTML='<div class="sup-name">'+escapeHtml(supCurrentStudent.studentName||"Unnamed student")+'</div><div class="sup-id">'+escapeHtml(supCurrentStudent.studentId||"No ID")+'</div><div class="sup-topic">'+escapeHtml(supCurrentStudent.researchTopic||"No research topic recorded.")+'</div>';
- p.disabled=supIndex===0;n.disabled=supIndex===supStudents.length-1;
- document.getElementById("supCount").textContent="Student "+(supIndex+1)+" of "+supStudents.length;
- supRenderSubs();
+  const S = state.sup, b = $("supStudent"), has = S.students.length > 0;
+  ["supOpenSubs","supTopicFb","supResetPin","supToggleStatus"].forEach(id => $(id).disabled = !has);
+  closeModal("supReviewModal"); closeModal("supSubsModal");
+  if(!has){ b.innerHTML = '<div class="muted">No students found.</div>'; $("supPrev").disabled = $("supNext").disabled = true; $("supCount").textContent = "0 students"; return; }
+  const st = S.current = S.students[S.index];
+  const res = S.research.find(r => key(r.studentId) === key(st.studentId));
+  const chs = S.chapters.filter(c => key(c.studentId) === key(st.studentId));
+  const active = key(st.status) === "active";
+  b.innerHTML =
+    '<div class="sup-name">'+esc(st.studentName||"Unnamed student")+'</div>'+
+    '<div class="sup-id">'+esc(st.studentId)+' · <span class="badge '+(active?"ok":"warn")+'">'+esc(st.status||"—")+'</span></div>'+
+    '<div class="muted small" style="margin-bottom:10px">'+esc(st.programme||"")+' · '+esc(st.email||"no email")+' · '+esc(st.phone||"no phone")+'</div>'+
+    '<div class="sup-topic"><strong>Topic:</strong> '+esc((res && res.researchTitle) || "No research topic recorded.")+'</div>'+
+    (chs.length ? '<div class="muted small" style="margin-top:10px">Chapters: '+chs.map(c => esc(c.chapter)+' ('+esc(c.status)+')').join(" · ")+'</div>' : '');
+  $("supPrev").disabled = S.index === 0; $("supNext").disabled = S.index === S.students.length - 1;
+  $("supCount").textContent = "Student " + (S.index+1) + " of " + S.students.length;
+  $("supToggleStatus").textContent = active ? "⛔ SUSPEND" : "✅ ACTIVATE";
+  supRenderSubs();
 }
+function supStudentSubs(){ return state.sup.submissions.filter(s => key(s.studentId) === key(state.sup.current.studentId)); }
 function supRenderSubs(){
- const b=document.getElementById("supSubs"),id=supKey(supCurrentStudent.studentId);
- const list=supSubmissions.filter(s=>supKey(s.studentId)===id);
- const o=document.getElementById("supOpenSubs");
- o.disabled=false;o.textContent="📥 VIEW SUBMISSIONS ("+list.length+")";
- document.getElementById("supSubsTitle").textContent="📥 "+(supCurrentStudent.studentName||"Student")+" — Submissions";
- if(!list.length){b.innerHTML='<div class="notice">No submissions found for this student.</div>';return}
- const rev=list.slice().reverse();
- b.innerHTML=rev.map((s,i)=>'<div class="sup-sub"><div><div class="sup-sub-title">'+escapeHtml(s.stage||"Submission")+' — Version '+escapeHtml(s.version||"1")+'</div><div class="sup-sub-meta">'+escapeHtml(s.timestamp||s.submittedAt||"")+'<br>'+escapeHtml(s.fileName||"No filename")+'<br>'+escapeHtml(s.reviewStatus||"Awaiting Supervisor Review")+'</div></div><button class="action" type="button" data-review="'+i+'">REVIEW</button></div>').join("");
- b.querySelectorAll("[data-review]").forEach(x=>x.onclick=()=>supOpenReview(rev[Number(x.dataset.review)]));
+  const S = state.sup, list = supStudentSubs();
+  $("supOpenSubs").textContent = "📥 SUBMISSIONS (" + list.length + ")";
+  $("supSubsTitle").textContent = "📥 " + (S.current.studentName || "Student") + " — Submissions";
+  const box = $("supSubs");
+  if(!list.length){ box.innerHTML = '<div class="notice">No submissions found for this student.</div>'; return; }
+  const rev = list.slice().reverse();
+  box.innerHTML = rev.map((s,i) => {
+    const fb = S.feedback.filter(f => f.submissionId === s.submissionId).sort((a,b)=>String(b.timestamp).localeCompare(String(a.timestamp)))[0];
+    const link = safeLink(s.driveUrl);
+    return '<div class="sup-sub"><div><div class="sup-sub-title">'+esc(s.stage||"Submission")+' — Version '+esc(s.version||"1")+'</div><div class="sup-sub-meta">'+esc(fmtDate(s.timestamp))+'<br>'+esc(s.fileName||"No filename")+'<br>'+esc(fb ? "Decision: "+fb.status : (s.reviewStatus||"Awaiting Supervisor Review"))+'<br>GitHub: '+esc(s.overallStatus||"—")+(link?' · <a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer">Open file</a>':'')+'</div></div><button class="action" type="button" data-review="'+i+'">REVIEW</button></div>';
+  }).join("");
+  box.querySelectorAll("[data-review]").forEach(x => x.onclick = () => supOpenReview(rev[Number(x.dataset.review)]));
 }
 function supOpenReview(s){
- supCurrentSubmission=s;
- document.getElementById("supReviewInfo").innerHTML="<strong>"+escapeHtml(supCurrentStudent.studentName)+"</strong> · "+escapeHtml(s.stage||"Submission")+" · Version "+escapeHtml(s.version||"1")+"<br>"+escapeHtml(s.fileName||"");
- document.getElementById("supFeedback").value="";document.getElementById("supSendMsg").textContent="";
- openModal("supReviewModal");
+  state.sup.review = s;
+  $("supReviewInfo").innerHTML = "<strong>"+esc(state.sup.current.studentName)+"</strong> · "+esc(s.stage||"Submission")+(s.version?" · Version "+esc(s.version):"")+(s.fileName?"<br>"+esc(s.fileName):"");
+  $("supFeedback").value = ""; $("supSendMsg").textContent = "";
+  openModal("supReviewModal");
 }
 async function supSendFeedback(){
- const name=document.getElementById("supSupervisorName").value.trim(),fb=document.getElementById("supFeedback").value.trim();
- if(!name||!fb){document.getElementById("supSendMsg").className="sup-msg error";document.getElementById("supSendMsg").textContent="Please enter your name and feedback.";return}
- const r={recordType:"feedback",action:"created",feedbackId:"FB-"+Date.now(),studentId:supCurrentStudent.studentId,studentName:supCurrentStudent.studentName,email:supCurrentStudent.email||"",stage:supCurrentSubmission.stage||"",version:supCurrentSubmission.version||"1",fileName:supCurrentSubmission.fileName||"",decision:document.getElementById("supDecision").value,feedback:fb,supervisor:name,submittedAt:new Date().toISOString(),status:document.getElementById("supDecision").value};
- try{await sendToCloud(r);localStorage.setItem("rs_supervisor_name",name);document.getElementById("supSendMsg").className="sup-msg ok";document.getElementById("supSendMsg").textContent="Feedback sent successfully.";document.getElementById("supFeedback").value="";setTimeout(function(){closeModal("supReviewModal")},1400)}
- catch(e){queueRecord(r);document.getElementById("supSendMsg").className="sup-msg error";document.getElementById("supSendMsg").textContent="Cloud failed — feedback queued locally."}
+  const S = state.sup, msgEl = $("supSendMsg");
+  const name = $("supSupervisorName").value.trim(), fb = $("supFeedback").value.trim();
+  if(!name || !fb){ setMsg(msgEl, "Please enter your name and feedback.", "error"); msgEl.className = "sup-msg error"; return; }
+  const btn = $("supSend"); btn.disabled = true;
+  try{
+    await api("createFeedback", {studentId:S.current.studentId, submissionId:S.review.submissionId||"", stage:S.review.stage||"", feedback:fb, supervisor:name, status:$("supDecision").value});
+    try{ sessionStorage.setItem("mtc_supervisor_name", name); }catch(e){}
+    msgEl.className = "sup-msg ok"; msgEl.textContent = "Feedback sent.";
+    setTimeout(() => { closeModal("supReviewModal"); supLoad(S.current.studentId); }, 900);
+  }catch(err){ msgEl.className = "sup-msg error"; msgEl.textContent = err.message; }
+  finally{ btn.disabled = false; }
 }
-document.getElementById("supPrev").onclick=()=>{if(supIndex>0){supIndex--;supRender()}};
-document.getElementById("supNext").onclick=()=>{if(supIndex<supStudents.length-1){supIndex++;supRender()}};
-document.getElementById("supSend").onclick=supSendFeedback;
-document.getElementById("supSupervisorName").value=localStorage.getItem("rs_supervisor_name")||"";
+$("supSend").onclick = supSendFeedback;
+$("supPrev").onclick = () => { if(state.sup.index > 0){ state.sup.index--; supRender(); } };
+$("supNext").onclick = () => { if(state.sup.index < state.sup.students.length - 1){ state.sup.index++; supRender(); } };
+$("supOpenSubs").onclick = () => { supRenderSubs(); openModal("supSubsModal"); };
+$("supTopicFb").onclick = () => supOpenReview({stage:"Research Topic", version:"", fileName:"", submissionId:""});
+$("supRefresh").onclick = () => supLoad(state.sup.current && state.sup.current.studentId);
+$("supResetPin").onclick = async () => {
+  const st = state.sup.current;
+  if(!confirm("Reset the PIN for " + st.studentName + "? Their old PIN will stop working.")) return;
+  try{
+    const r = await api("resetStudentPin", {studentId:st.studentId});
+    $("supPinInfo").innerHTML = '<p><strong>'+esc(st.studentName)+'</strong> ('+esc(st.studentId)+')</p><div style="font-size:34px;font-weight:800;letter-spacing:6px;text-align:center;padding:16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0">'+esc(r.temporaryPin)+'</div>';
+    openModal("supPinModal");
+  }catch(err){ alert(err.message); }
+};
+$("supToggleStatus").onclick = async () => {
+  const st = state.sup.current, to = key(st.status) === "active" ? "Suspended" : "Active";
+  if(!confirm((to === "Suspended" ? "Suspend " : "Activate ") + st.studentName + "?")) return;
+  try{ await api("setStudentStatus", {studentId:st.studentId, status:to}); await supLoad(st.studentId); }
+  catch(err){ alert(err.message); }
+};
 
-/* ---------------- STARTUP ---------------- */
-loadProfile();
-loadTopic();
-renderHistory();
-renderStages();
-updateCloudStatus();
-flushQueue();
-window.addEventListener("online",flushQueue);
+/* =========================================================
+   DIAGNOSTICS (supervisor only; nothing runs before sign-in)
+   ========================================================= */
+let diagRunning = false;
+function diagLog(m){ const b=$("diagLog"); b.textContent += "\n["+new Date().toLocaleTimeString()+"] "+m; b.scrollTop=b.scrollHeight; }
+function setDiag(id, st, text){ const el=$(id); el.className="diag-status "+(st==="testing"?"diag-testing":st==="ok"?"diag-ok":st==="error"?"diag-error":"diag-wait"); el.textContent=text; }
+async function runDiagnostics(){
+  if(diagRunning) return; diagRunning = true; $("runDiagnostics").disabled = true;
+  $("diagLog").textContent = "["+new Date().toLocaleTimeString()+"] TEST STARTED";
+  ["diagCloud","diagSupervisor","diagStudent","diagStorage","diagNetwork"].forEach(id => setDiag(id,"testing","checking…"));
+  const net = navigator.onLine; setDiag("diagNetwork", net?"ok":"error", net?"online":"offline"); diagLog("Network: " + (net?"online":"OFFLINE"));
+  try{ const k="__mtc_"+Date.now(); sessionStorage.setItem(k,"1"); sessionStorage.removeItem(k); setDiag("diagStorage","ok","OK"); diagLog("Browser storage OK."); }
+  catch(e){ setDiag("diagStorage","error","FAILED"); diagLog("Browser storage FAILED: "+e.message); }
+  setDiag("diagStudent", state.token ? "ok" : "error", state.token ? "signed in ("+state.role+")" : "no session");
+  try{
+    const t0 = performance.now(); const h = await api("health"); const ms = Math.round(performance.now()-t0);
+    setDiag("diagCloud","ok","OK • "+ms+" ms"); diagLog("Health OK • "+(h.service||"")+" • "+(h.version||"")+" • "+(h.build||""));
+  }catch(e){ setDiag("diagCloud","error","FAILED"); diagLog("Health FAILED: "+e.message); }
+  if(state.role === "supervisor"){
+    try{
+      const d = await api("backendDiagnostics", {}, 60000);
+      (d.checks||[]).forEach(c => diagLog((c.ok?"✓ ":"✗ ")+c.name+(c.detail?" — "+c.detail:"")+(c.rows!==undefined?" ("+c.rows+" rows)":"")));
+      setDiag("diagSupervisor", d.ok?"ok":"error", d.ok?"all checks passed":"see log");
+      const f = await api("fullHealth"); diagLog("GitHub reachable: "+(f.github&&f.github.reachable)+" • private repo: "+(f.github&&f.github.private)); 
+      if(f.github && f.github.private === false) diagLog("⚠ The GitHub repository is PUBLIC. Make it private.");
+    }catch(e){ setDiag("diagSupervisor","error","FAILED"); diagLog("Backend diagnostics FAILED: "+e.message); }
+  }else setDiag("diagSupervisor","wait","supervisor only");
+  diagLog("TEST COMPLETE");
+  diagRunning = false; $("runDiagnostics").disabled = false;
+}
+$("openDiag").addEventListener("click", () => openModal("diagModal"));
+$("runDiagnostics").addEventListener("click", runDiagnostics);
+$("clearDiagLog").addEventListener("click", () => { $("diagLog").textContent = "["+new Date().toLocaleTimeString()+"] Log cleared."; });
+$("copyDiagLog").addEventListener("click", async () => {
+  const text = $("diagLog").textContent;
+  try{ await navigator.clipboard.writeText(text); diagLog("Log copied."); }
+  catch(e){ const ta=document.createElement("textarea"); ta.value=text; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy"); diagLog("Log copied.");}catch(err){diagLog("COPY FAILED: "+err.message);} ta.remove(); }
+});
+$("exportDiagLog").addEventListener("click", () => {
+  const report = ["MTC RESEARCH SUPERVISION PORTAL — DIAGNOSTIC REPORT V10","Generated: "+new Date().toString(),"Browser: "+navigator.userAgent,"Online: "+navigator.onLine,"Role: "+(state.role||"none"),"","================ LOG ================",$("diagLog").textContent].join("\n");
+  const url = URL.createObjectURL(new Blob([report],{type:"text/plain;charset=utf-8"}));
+  const a = document.createElement("a"); a.href=url; a.download="MTC_Diagnostic_"+new Date().toISOString().replace(/[:.]/g,"-")+".txt";
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1000);
+});
+window.addEventListener("online", () => diagLog("Browser is ONLINE."));
+window.addEventListener("offline", () => { setDiag("diagNetwork","error","offline"); diagLog("Browser is OFFLINE."); });
+
+/* =========================================================
+   SIGN-IN GATE
+   ========================================================= */
+(function(){
+  const gate=$("v9Gate"), roleGrid=$("v9RoleGrid"), supForm=$("v9SupervisorForm"), stuForm=$("v9StudentForm");
+  const supMsg=$("v9SupervisorMsg"), stuMsg=$("v9StudentMsg"), select=$("v9StudentSelect");
+  const newPanel=$("v9NewStudentPanel"), pinPanel=$("v9ChangePinPanel"), signInBlock=$("v9SignInBlock");
+  let loginPin = "";   // kept in memory only, for the forced PIN change
+
+  function msg(el, text, ok){ el.textContent = text; el.style.color = ok ? "#166534" : "#b91c1c"; }
+
+  function showForm(which){
+    roleGrid.style.display = "none"; $("v9Question").style.display = "none";
+    supForm.classList.toggle("open", which==="supervisor");
+    stuForm.classList.toggle("open", which==="student");
+    supMsg.textContent = ""; stuMsg.textContent = "";
+    if(which === "student") loadNames();
+    if(which === "supervisor") $("v9SupervisorPassword").focus();
+  }
+  function resetGate(){
+    roleGrid.style.display = ""; $("v9Question").style.display = "";
+    supForm.classList.remove("open"); stuForm.classList.remove("open");
+    newPanel.classList.remove("open"); pinPanel.classList.remove("open"); signInBlock.style.display = "";
+    supMsg.textContent = ""; stuMsg.textContent = "";
+    $("v9SupervisorPassword").value = ""; $("v9StudentPin").value = ""; loginPin = "";
+  }
+
+  async function loadNames(selectId){
+    select.innerHTML = '<option value="">-- Loading names... --</option>';
+    try{
+      const d = await api("listStudents");
+      const list = d.students || [];
+      select.innerHTML = '<option value="">-- Select your name --</option>' + list.map(s => '<option value="'+esc(s.studentId)+'">'+esc(s.studentName)+'</option>').join("");
+      if(selectId) select.value = selectId;
+      if(!list.length) msg(stuMsg, "No names yet. Use “My name is not in the list” to create your profile.", true);
+    }catch(err){
+      select.innerHTML = '<option value="">-- Could not load names --</option>';
+      msg(stuMsg, err.message, false);
+    }
+  }
+
+  function enterApp(role){
+    state.role = role; saveSession();
+    document.body.classList.remove("v9-locked"); gate.classList.add("hidden");
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("hidden", b.dataset.role !== role));
+    $("openDiag").classList.toggle("hidden", role !== "supervisor");
+    $("cloudDot").className = "dot online"; $("cloudText").textContent = "Connected";
+    const who = $("whoPill"); who.style.display = ""; who.textContent = role === "supervisor" ? "Supervisor" : ((state.profile && state.profile.studentName) || "Student");
+    const first = role === "supervisor" ? "supervisor" : "dashboard";
+    showPage(first);
+  }
+
+  // role buttons
+  $("v9SupervisorBtn").addEventListener("click", () => showForm("supervisor"));
+  $("v9StudentBtn").addEventListener("click", () => showForm("student"));
+  $("v9SupervisorCancel").addEventListener("click", resetGate);
+  $("v9StudentCancel").addEventListener("click", resetGate);
+  $("v9ResetChoice").addEventListener("click", resetGate);
+
+  // supervisor sign-in (checked by the server)
+  async function supervisorSignIn(){
+    const btn = $("v9SupervisorLogin"); btn.disabled = true; msg(supMsg, "Signing in…", true);
+    try{
+      const d = await api("supervisorLogin", {password: $("v9SupervisorPassword").value});
+      state.token = d.token; $("v9SupervisorPassword").value = "";
+      enterApp("supervisor"); supLoad();
+    }catch(err){ msg(supMsg, err.message, false); }
+    finally{ btn.disabled = false; }
+  }
+  $("v9SupervisorLogin").addEventListener("click", supervisorSignIn);
+  $("v9SupervisorPassword").addEventListener("keydown", e => { if(e.key === "Enter") supervisorSignIn(); });
+
+  // student sign-in
+  async function studentSignIn(){
+    const id = select.value, pin = $("v9StudentPin").value;
+    if(!id){ msg(stuMsg, "Please select your name.", false); return; }
+    if(!pin){ msg(stuMsg, "Please enter your PIN.", false); return; }
+    const btn = $("v9StudentContinue"); btn.disabled = true; msg(stuMsg, "Signing in…", true);
+    try{
+      const d = await api("studentLogin", {studentId:id, pin:pin});
+      state.token = d.token; state.profile = d.profile; loginPin = pin; $("v9StudentPin").value = "";
+      if(d.mustChangePin){
+        signInBlock.style.display = "none"; pinPanel.classList.add("open"); msg(stuMsg, "", true);
+        return;
+      }
+      await finishStudentEntry();
+    }catch(err){ msg(stuMsg, err.message, false); }
+    finally{ btn.disabled = false; }
+  }
+  async function finishStudentEntry(){
+    msg(stuMsg, "Loading your research…", true);
+    await loadStudentData();
+    enterApp("student");
+  }
+  $("v9StudentContinue").addEventListener("click", studentSignIn);
+  $("v9StudentPin").addEventListener("keydown", e => { if(e.key === "Enter") studentSignIn(); });
+
+  // forced PIN change
+  $("v9ChangePinSave").addEventListener("click", async () => {
+    const a = $("v9ChangePin1").value, b = $("v9ChangePin2").value, m = $("v9ChangePinMsg");
+    if(a !== b){ msg(m, "The PINs do not match.", false); return; }
+    try{
+      await api("changePin", {oldPin:loginPin, newPin:a});
+      loginPin = ""; pinPanel.classList.remove("open"); signInBlock.style.display = "";
+      await finishStudentEntry();
+    }catch(err){ msg(m, err.message, false); }
+  });
+
+  // registration
+  $("v9NewStudentBtn").addEventListener("click", () => { newPanel.classList.add("open"); signInBlock.style.display = "none"; msg(stuMsg, "", true); });
+  $("v9CancelNewStudent").addEventListener("click", () => { newPanel.classList.remove("open"); signInBlock.style.display = ""; });
+  $("v9RegisterStudent").addEventListener("click", async () => {
+    const m = $("v9NewStudentMsg");
+    const sur = $("v9NewSurname").value.trim(), first = $("v9NewFirstName").value.trim();
+    if(!sur || !first){ msg(m, "Surname and First Name are required.", false); return; }
+    const p1 = $("v9NewPin").value, p2 = $("v9NewPin2").value;
+    if(p1 !== p2){ msg(m, "The PINs do not match.", false); return; }
+    const btn = $("v9RegisterStudent"); btn.disabled = true; msg(m, "Creating profile…", true);
+    try{
+      const d = await api("registerStudent", {
+        studentName: first + " " + sur, programme: $("v9NewProgramme").value, email: $("v9NewEmail").value,
+        phone: $("v9NewPhone").value, pin: p1
+      });
+      newPanel.classList.remove("open"); signInBlock.style.display = "";
+      ["v9NewSurname","v9NewFirstName","v9NewProgramme","v9NewEmail","v9NewPhone","v9NewPin","v9NewPin2"].forEach(i => $(i).value = "");
+      await loadNames(d.status === "Active" ? d.studentId : "");
+      msg(stuMsg, "✓ " + d.message, true);
+    }catch(err){ msg(m, err.message, false); }
+    finally{ btn.disabled = false; }
+  });
+
+  // sign out: clears the server session AND wipes everything in this page
+  $("signOutBtn").addEventListener("click", async () => {
+    try{ if(state.token) await api(state.role === "supervisor" ? "supervisorLogout" : "logout"); }catch(e){}
+    clearSession(); location.reload();
+  });
+
+  // restore a session after a page refresh (token only; data is re-fetched)
+  (async function restore(){
+    let notice = ""; try{ notice = sessionStorage.getItem("mtc_notice") || ""; sessionStorage.removeItem("mtc_notice"); }catch(e){}
+    let saved = null; try{ saved = JSON.parse(sessionStorage.getItem(SESSION_KEY) || "null"); }catch(e){}
+    if(saved && saved.token && saved.role){
+      state.token = saved.token;
+      try{
+        if(saved.role === "student"){ await loadStudentData(); enterApp("student"); }
+        else { state.role = "supervisor"; enterApp("supervisor"); await supLoad(); }
+        return;
+      }catch(err){ state.token = null; clearSession(); }
+    }
+    if(notice){ roleGrid.insertAdjacentHTML("beforebegin", '<p class="v9-msg" style="color:#b91c1c;text-align:center">'+esc(notice)+'</p>'); }
+  })();
+
+  try{ $("supSupervisorName").value = sessionStorage.getItem("mtc_supervisor_name") || ""; }catch(e){}
+})();
+
 </script>
 </body>
 </html>
