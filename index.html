@@ -268,6 +268,17 @@ input[readonly]{background:#f1f5f9;color:#475569}
 button:disabled{opacity:.6;cursor:not-allowed}
 @media(max-width:600px){.sup-pending{flex-direction:column;align-items:flex-start}}
 </style>
+
+<style>
+@media (max-width: 600px) {
+  #v9NewStudentPanel > div[style*="grid-template-columns"] {
+    gap: 7px !important;
+  }
+  #v9NewStudentPanel input {
+    font-size: 16px;
+  }
+}
+</style>
 </head>
 <body class="v9-locked">
 
@@ -327,23 +338,46 @@ button:disabled{opacity:.6;cursor:not-allowed}
         </div>
         <div class="v9-msg" id="v9StudentMsg"></div>
 
-        <!-- Register -->
+        <!-- Register: compact responsive layout; IDs/functionality unchanged -->
         <div id="v9NewStudentPanel" class="v9-form" style="margin-top:14px">
           <h3>📝 Create Student Profile</h3>
-          <label for="v9NewSurname">Surname</label>
-          <input id="v9NewSurname" placeholder="Surname" maxlength="60">
-          <label for="v9NewFirstName">First Name</label>
-          <input id="v9NewFirstName" placeholder="First name" maxlength="60">
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label for="v9NewFirstName">First Name</label>
+              <input id="v9NewFirstName" placeholder="First name" maxlength="60" style="width:100%;box-sizing:border-box;">
+            </div>
+            <div>
+              <label for="v9NewSurname">Surname</label>
+              <input id="v9NewSurname" placeholder="Surname" maxlength="60" style="width:100%;box-sizing:border-box;">
+            </div>
+          </div>
+
           <label for="v9NewProgramme">Programme</label>
           <input id="v9NewProgramme" placeholder="Programme" maxlength="100">
-          <label for="v9NewEmail">Email</label>
-          <input id="v9NewEmail" type="email" placeholder="student@example.com" maxlength="120">
-          <label for="v9NewPhone">Phone</label>
-          <input id="v9NewPhone" type="tel" placeholder="07XXXXXXXX" maxlength="30">
-          <label for="v9NewPin">Choose a PIN (6+ characters)</label>
-          <input id="v9NewPin" type="password" autocomplete="new-password" maxlength="64">
-          <label for="v9NewPin2">Repeat PIN</label>
-          <input id="v9NewPin2" type="password" autocomplete="new-password" maxlength="64">
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label for="v9NewEmail">Email</label>
+              <input id="v9NewEmail" type="email" placeholder="student@example.com" maxlength="120" style="width:100%;box-sizing:border-box;">
+            </div>
+            <div>
+              <label for="v9NewPhone">Phone</label>
+              <input id="v9NewPhone" type="tel" placeholder="07XXXXXXXX" maxlength="30" style="width:100%;box-sizing:border-box;">
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label for="v9NewPin">Choose a PIN (6+ characters)</label>
+              <input id="v9NewPin" type="password" autocomplete="new-password" maxlength="64" style="width:100%;box-sizing:border-box;">
+            </div>
+            <div>
+              <label for="v9NewPin2">Repeat PIN</label>
+              <input id="v9NewPin2" type="password" autocomplete="new-password" maxlength="64" style="width:100%;box-sizing:border-box;">
+            </div>
+          </div>
+
           <div class="v9-actions">
             <button class="v9-primary" type="button" id="v9RegisterStudent">Create profile</button>
             <button class="v9-secondary" type="button" id="v9CancelNewStudent">Cancel</button>
@@ -1239,3 +1273,4 @@ window.addEventListener("offline", () => { setDiag("diagNetwork","error","offlin
 </script>
 </body>
 </html>
+
