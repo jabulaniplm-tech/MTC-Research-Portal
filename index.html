@@ -265,6 +265,11 @@ body.v9-locked > .container {
 .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .sup-pending{display:flex;justify-content:space-between;align-items:center;gap:10px;border:1px solid #fde68a;background:#fffbeb;border-radius:10px;padding:12px;margin-bottom:8px}
 input[readonly]{background:#f1f5f9;color:#475569}
+.action.danger{background:#b91c1c}
+.prop{text-align:left;margin-top:14px}
+.prop-item{background:#fff;border:1px solid #e2e8f0;border-radius:9px;padding:10px 12px;margin-bottom:8px}
+.prop-item .label{font-weight:800;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.prop-text{white-space:pre-wrap;line-height:1.45;font-size:14px;color:#172033;font-weight:400}
 button:disabled{opacity:.6;cursor:not-allowed}
 @media(max-width:600px){.sup-pending{flex-direction:column;align-items:flex-start}}
 </style>
@@ -540,13 +545,13 @@ button:disabled{opacity:.6;cursor:not-allowed}
   <section id="submission" class="page">
     <div class="card">
       <h2 class="section-title">Submit a Document</h2>
-      <p class="muted">PDF, DOC or DOCX, up to 10 MB. Your document goes to a private folder that only you and your supervisor can access. Version numbers are assigned automatically.</p>
+      <p class="muted">PDF or DOCX (Word), up to 10 MB. A cover page with the college name, your details, topic, problem statement, objectives and research questions is added to the front automatically, so save your topic first. Your document goes to a private folder that only you and your supervisor can access. Version numbers are assigned automatically.</p>
       <form id="submissionForm">
         <label class="label" for="submissionStage">Research Section</label>
         <select id="submissionStage" required></select>
         <div class="muted small" id="versionHint" style="margin-top:6px"></div><br>
         <label class="label" for="documentFile">Document</label>
-        <input id="documentFile" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"><br><br>
+        <input id="documentFile" type="file" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"><br><br>
         <label class="label" for="submissionComment">Comment to Supervisor</label>
         <textarea id="submissionComment" rows="4" maxlength="1000" placeholder="Briefly explain what you are submitting or what you changed."></textarea><br>
         <button class="action" type="submit" id="submitBtn">SUBMIT DOCUMENT</button>
@@ -587,9 +592,11 @@ button:disabled{opacity:.6;cursor:not-allowed}
       <div id="supCloudMsg" class="sup-msg"></div>
       <div class="btn-row">
         <button class="action" type="button" id="supOpenSubs" disabled>📥 SUBMISSIONS</button>
-        <button class="action green" type="button" id="supTopicFb" disabled>💬 FEEDBACK ON TOPIC</button>
+        <button class="action green" type="button" id="supTopicFb" disabled>💬 REVIEW TOPIC</button>
+        <button class="action green" type="button" id="supProblemFb" disabled>💬 REVIEW PROBLEM, OBJECTIVES &amp; QUESTIONS</button>
         <button class="action secondary" type="button" id="supResetPin" disabled>🔑 RESET PIN</button>
         <button class="action secondary" type="button" id="supToggleStatus" disabled>⛔ SUSPEND</button>
+        <button class="action danger" type="button" id="supDelete" disabled>🗑 REMOVE STUDENT</button>
         <button class="action secondary" type="button" id="supRefresh">↻ REFRESH</button>
       </div>
     </div>
@@ -785,6 +792,8 @@ function stageInfo(stage){
   const ch = state.chapters.find(c => c.chapter === stage);
   if(ch && ch.status === "Ready for review") return {cls:"pending", icon:"•", label:"READY", text:"Marked ready. Upload it under Submission"};
   if(ch && ch.status === "Drafting") return {cls:"pending", icon:"•", label:"IN PROGRESS", text:"You are working on this chapter"};
+  if(stage === "Problem Statement" && state.research && (state.research.problemStatement || state.research.objectives || state.research.researchQuestions))
+    return {cls:"pending", icon:"→", label:"SAVED", text:"Problem statement, objectives and questions saved; awaiting supervisor feedback"};
   return {cls:"locked", icon:"•", label:"NOT STARTED", text:"Not started yet"};
 }
 
@@ -913,6 +922,139 @@ function updateVersionHint(){
 }
 $("submissionStage").addEventListener("change", updateVersionHint);
 
+/* ---- Cover page: added in the browser before the file is uploaded ---- */
+const COLLEGE = {name:"Mutare Teachers' College", unit:"Research Supervision Portal"};
+const LIBS = {
+  pdf:"https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js",
+  zip:"https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"
+};
+function loadScript(url, ready){
+  return new Promise((resolve, reject) => {
+    if(ready()) return resolve();
+    const s = document.createElement("script");
+    s.src = url;
+    s.onload = () => ready() ? resolve() : reject(new Error("A required library did not start."));
+    s.onerror = () => reject(new Error("Could not load a required library. Check your internet connection and try again."));
+    document.head.appendChild(s);
+  });
+}
+function coverRows(stage){
+  const p = state.profile || {}, r = state.research || {}, none = "Not yet provided";
+  return [
+    ["Student name", p.studentName || none],
+    ["Student ID", p.studentId || none],
+    ["Programme", p.programme || none],
+    ["Section submitted", stage],
+    ["Date", new Date().toLocaleDateString("en-GB", {day:"numeric", month:"long", year:"numeric"})],
+    ["Research topic", r.researchTitle || none],
+    ["Problem statement", r.problemStatement || none],
+    ["Research objectives", r.objectives || none],
+    ["Research questions", r.researchQuestions || none]
+  ];
+}
+function pdfSafe(t){
+  return String(t == null ? "" : t).replace(/\r/g, "")
+    .replace(/[\u2018\u2019]/g, "'").replace(/[\u201C\u201D]/g, '"').replace(/[\u2013\u2014]/g, "-")
+    .replace(/\u2026/g, "...").replace(/\u00A0/g, " ").replace(/\t/g, "    ")
+    .replace(/[^\x20-\x7E\xA1-\xFF\n]/g, "?");
+}
+function wrapText(text, font, size, maxW){
+  const lines = [];
+  pdfSafe(text).split("\n").forEach(par => {
+    let line = "";
+    par.split(" ").forEach(word => {
+      let w = word;
+      while(font.widthOfTextAtSize(w, size) > maxW){
+        let cut = w.length;
+        while(cut > 1 && font.widthOfTextAtSize(w.slice(0, cut), size) > maxW) cut--;
+        if(line){ lines.push(line); line = ""; }
+        lines.push(w.slice(0, cut)); w = w.slice(cut);
+      }
+      const test = line ? line + " " + w : w;
+      if(font.widthOfTextAtSize(test, size) <= maxW) line = test;
+      else { lines.push(line); line = w; }
+    });
+    lines.push(line);
+  });
+  return lines;
+}
+async function addCoverPdf(file, stage){
+  await loadScript(LIBS.pdf, () => window.PDFLib);
+  const {PDFDocument, StandardFonts, rgb} = PDFLib;
+  const doc = await PDFDocument.load(await file.arrayBuffer(), {ignoreEncryption:true});
+  const bold = await doc.embedFont(StandardFonts.HelveticaBold), reg = await doc.embedFont(StandardFonts.Helvetica);
+  const W = 595.28, H = 841.89, M = 56, maxW = W - 2*M;
+  const navy = rgb(0.043,0.165,0.357), gold = rgb(0.949,0.761,0.102), grey = rgb(0.39,0.45,0.55), ink = rgb(0.09,0.12,0.2);
+  const pages = []; let page, y, idx = 0;
+  function newPage(){
+    page = doc.insertPage(idx++, [W, H]); pages.push(page);
+    page.drawRectangle({x:0, y:H-14, width:W, height:14, color:gold});
+    y = H - 60;
+  }
+  function center(t, font, size, yy, color){
+    page.drawText(t, {x:(W - font.widthOfTextAtSize(t, size))/2, y:yy, size:size, font:font, color:color});
+  }
+  newPage();
+  page.drawRectangle({x:0, y:H-124, width:W, height:110, color:navy});
+  center(pdfSafe(COLLEGE.name.toUpperCase()), bold, 22, H-62, rgb(1,1,1));
+  center(pdfSafe(COLLEGE.unit), reg, 12, H-86, rgb(0.91,0.95,1));
+  center("RESEARCH SUBMISSION COVER PAGE", bold, 10, H-108, gold);
+  y = H - 165;
+  coverRows(stage).forEach(row => {
+    const lines = wrapText(row[1], reg, 11, maxW);
+    if(y - 15 - Math.min(lines.length, 2)*15 < 50) newPage();
+    page.drawText(pdfSafe(row[0]).toUpperCase(), {x:M, y:y, size:9, font:bold, color:grey});
+    y -= 15;
+    lines.forEach(l => {
+      if(y < 50) newPage();
+      if(l) page.drawText(l, {x:M, y:y, size:11, font:reg, color:ink});
+      y -= 15;
+    });
+    y -= 10;
+  });
+  pages.forEach((pg, i) => pg.drawText("Cover page " + (i+1) + " of " + pages.length + " - added automatically by the MTC Research Supervision Portal", {x:M, y:26, size:8, font:reg, color:grey}));
+  return new Blob([await doc.save()], {type:"application/pdf"});
+}
+function xmlEsc(t){
+  return String(t == null ? "" : t).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function wPara(text, o){
+  o = o || {};
+  const rpr = "<w:rPr>" + (o.bold ? "<w:b/>" : "") + (o.color ? '<w:color w:val="'+o.color+'"/>' : "") + '<w:sz w:val="'+(o.size||22)+'"/></w:rPr>';
+  const ppr = "<w:pPr>" + (o.keepNext ? "<w:keepNext/>" : "") +
+    (o.border ? '<w:pBdr><w:bottom w:val="single" w:sz="12" w:space="4" w:color="'+o.border+'"/></w:pBdr>' : "") +
+    '<w:spacing w:before="'+(o.before||0)+'" w:after="'+(o.after === undefined ? 80 : o.after)+'"/>' +
+    (o.center ? '<w:jc w:val="center"/>' : "") + "</w:pPr>";
+  const runs = String(text == null ? "" : text).replace(/\r/g, "").split("\n").map((l, i) =>
+    (i ? "<w:r>"+rpr+"<w:br/></w:r>" : "") + "<w:r>"+rpr+'<w:t xml:space="preserve">'+xmlEsc(l)+"</w:t></w:r>").join("");
+  return "<w:p>" + ppr + runs + "</w:p>";
+}
+async function addCoverDocx(file, stage){
+  await loadScript(LIBS.zip, () => window.JSZip);
+  const zip = await JSZip.loadAsync(await file.arrayBuffer());
+  const entry = zip.file("word/document.xml");
+  if(!entry) throw new Error("This Word file could not be read. Please re-save it as .docx and try again.");
+  let xml = await entry.async("string");
+  const m = xml.match(/<w:body[^>]*>/);
+  if(!m) throw new Error("This Word file has an unexpected layout. Please re-save it as .docx and try again.");
+  let cover =
+    wPara(COLLEGE.name.toUpperCase(), {bold:1, size:36, center:1, color:"0B2A5B", after:40}) +
+    wPara(COLLEGE.unit, {size:24, center:1, color:"173F7A", after:40}) +
+    wPara("RESEARCH SUBMISSION COVER PAGE", {bold:1, size:20, center:1, color:"8A6D00", border:"F2C21A", after:240});
+  coverRows(stage).forEach(r => {
+    cover += wPara(r[0].toUpperCase(), {bold:1, size:18, color:"64748B", keepNext:1, before:120, after:20}) + wPara(r[1], {size:22, after:60});
+  });
+  cover += '<w:p><w:r><w:br w:type="page"/></w:r></w:p>';
+  const at = m.index + m[0].length;
+  zip.file("word/document.xml", xml.slice(0, at) + cover + xml.slice(at));
+  return await zip.generateAsync({type:"blob", compression:"DEFLATE", mimeType:"application/vnd.openxmlformats-officedocument.wordprocessingml.document"});
+}
+async function addCoverPage(file, ext, stage){
+  try{ return ext === "pdf" ? await addCoverPdf(file, stage) : await addCoverDocx(file, stage); }
+  catch(err){ throw new Error("Could not add the cover page: " + err.message); }
+}
+
 function fileToDataUrl(file){
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -927,11 +1069,15 @@ $("submissionForm").addEventListener("submit", async e => {
   const file = $("documentFile").files[0], stage = $("submissionStage").value;
   if(!file){ setMsg(msg, "Please choose your document first.", "error"); return; }
   const ext = (file.name.split(".").pop() || "").toLowerCase();
-  if(["pdf","doc","docx"].indexOf(ext) === -1){ setMsg(msg, "Only PDF, DOC and DOCX files are accepted.", "error"); return; }
+  if(ext === "doc"){ setMsg(msg, "Old .doc files cannot receive the cover page. Open it in Word, choose Save As, and save it as a Word Document (.docx) or PDF, then upload that.", "error"); return; }
+  if(["pdf","docx"].indexOf(ext) === -1){ setMsg(msg, "Only PDF and DOCX files are accepted.", "error"); return; }
   if(file.size > CLOUD.MAX_FILE_SIZE){ setMsg(msg, "This file is larger than 10 MB. Please reduce its size.", "error"); return; }
-  btn.disabled = true; setMsg(msg, "Uploading… please keep this page open.");
+  btn.disabled = true; setMsg(msg, "Preparing your document… please keep this page open.");
   try{
-    const fileData = await fileToDataUrl(file);
+    const stamped = await addCoverPage(file, ext, stage);
+    if(stamped.size > CLOUD.MAX_FILE_SIZE) throw new Error("With the cover page added, the file is larger than 10 MB. Please reduce its size.");
+    setMsg(msg, "Uploading… please keep this page open.");
+    const fileData = await fileToDataUrl(stamped);
     const r = await api("uploadSubmission", {stage:stage, fileName:file.name, comment:$("submissionComment").value, fileData:fileData}, 120000);
     setMsg(msg, "✓ Received at " + new Date(r.receivedAt).toLocaleTimeString() + " — " + r.stage + ", version " + r.version + " (reference " + r.submissionId + ")", "ok");
     $("submissionComment").value = ""; $("documentFile").value = "";
@@ -992,9 +1138,35 @@ $("supPending").addEventListener("click", async e => {
   try{ await api("setStudentStatus", {studentId:id, status: a ? "Active" : "Suspended"}); await supLoad(state.sup.current && state.sup.current.studentId); }
   catch(err){ alert(err.message); btn.disabled = false; }
 });
+function supDecision(studentId, stage){
+  const f = state.sup.feedback
+    .filter(x => key(x.studentId) === key(studentId) && x.stage === stage && (x.status === "Approved" || x.status === "Revision Required"))
+    .sort((a,b) => String(b.timestamp).localeCompare(String(a.timestamp)))[0];
+  return f ? f.status : "";
+}
+function supBadge(stage, id){
+  const d = supDecision(id, stage);
+  return d === "Approved" ? '<span class="badge ok">Approved</span>' : d === "Revision Required" ? '<span class="badge warn">Revision required</span>' : '<span class="badge">Awaiting decision</span>';
+}
+function propItem(label, text, badge){
+  return '<div class="prop-item"><span class="label"><span>'+esc(label)+'</span>'+(badge||"")+'</span><div class="prop-text">'+(text ? esc(text) : '<span class="muted">Not provided yet.</span>')+'</div></div>';
+}
+function supProposalHtml(st, res){
+  res = res || {};
+  return '<div class="prop">'+
+    propItem("Research topic", res.researchTitle, supBadge("Research Topic", st.studentId))+
+    propItem("Problem statement", res.problemStatement, supBadge("Problem Statement", st.studentId))+
+    propItem("Research objectives", res.objectives)+
+    propItem("Research questions", res.researchQuestions)+
+    '<div class="muted small">The decision on <strong>Problem statement</strong> covers the problem statement, objectives and research questions together.</div></div>';
+}
+function supCurrentResearch(){
+  const id = state.sup.current.studentId;
+  return state.sup.research.find(r => key(r.studentId) === key(id)) || {};
+}
 function supRender(){
   const S = state.sup, b = $("supStudent"), has = S.students.length > 0;
-  ["supOpenSubs","supTopicFb","supResetPin","supToggleStatus"].forEach(id => $(id).disabled = !has);
+  ["supOpenSubs","supTopicFb","supProblemFb","supResetPin","supToggleStatus","supDelete"].forEach(id => $(id).disabled = !has);
   closeModal("supReviewModal"); closeModal("supSubsModal");
   if(!has){ b.innerHTML = '<div class="muted">No students found.</div>'; $("supPrev").disabled = $("supNext").disabled = true; $("supCount").textContent = "0 students"; return; }
   const st = S.current = S.students[S.index];
@@ -1005,7 +1177,7 @@ function supRender(){
     '<div class="sup-name">'+esc(st.studentName||"Unnamed student")+'</div>'+
     '<div class="sup-id">'+esc(st.studentId)+' · <span class="badge '+(active?"ok":"warn")+'">'+esc(st.status||"—")+'</span></div>'+
     '<div class="muted small" style="margin-bottom:10px">'+esc(st.programme||"")+' · '+esc(st.email||"no email")+' · '+esc(st.phone||"no phone")+'</div>'+
-    '<div class="sup-topic"><strong>Topic:</strong> '+esc((res && res.researchTitle) || "No research topic recorded.")+'</div>'+
+    supProposalHtml(st, res)+
     (chs.length ? '<div class="muted small" style="margin-top:10px">Chapters: '+chs.map(c => esc(c.chapter)+' ('+esc(c.status)+')').join(" · ")+'</div>' : '');
   $("supPrev").disabled = S.index === 0; $("supNext").disabled = S.index === S.students.length - 1;
   $("supCount").textContent = "Student " + (S.index+1) + " of " + S.students.length;
@@ -1027,9 +1199,9 @@ function supRenderSubs(){
   }).join("");
   box.querySelectorAll("[data-review]").forEach(x => x.onclick = () => supOpenReview(rev[Number(x.dataset.review)]));
 }
-function supOpenReview(s){
+function supOpenReview(s, detailHtml){
   state.sup.review = s;
-  $("supReviewInfo").innerHTML = "<strong>"+esc(state.sup.current.studentName)+"</strong> · "+esc(s.stage||"Submission")+(s.version?" · Version "+esc(s.version):"")+(s.fileName?"<br>"+esc(s.fileName):"");
+  $("supReviewInfo").innerHTML = "<strong>"+esc(state.sup.current.studentName)+"</strong> · "+esc(s.stage||"Submission")+(s.version?" · Version "+esc(s.version):"")+(s.fileName?"<br>"+esc(s.fileName):"")+(detailHtml||"");
   $("supFeedback").value = ""; $("supSendMsg").textContent = "";
   openModal("supReviewModal");
 }
@@ -1050,7 +1222,15 @@ $("supSend").onclick = supSendFeedback;
 $("supPrev").onclick = () => { if(state.sup.index > 0){ state.sup.index--; supRender(); } };
 $("supNext").onclick = () => { if(state.sup.index < state.sup.students.length - 1){ state.sup.index++; supRender(); } };
 $("supOpenSubs").onclick = () => { supRenderSubs(); openModal("supSubsModal"); };
-$("supTopicFb").onclick = () => supOpenReview({stage:"Research Topic", version:"", fileName:"", submissionId:""});
+$("supTopicFb").onclick = () => {
+  const r = supCurrentResearch();
+  supOpenReview({stage:"Research Topic", version:"", fileName:"", submissionId:""}, '<div class="prop">'+propItem("Research topic", r.researchTitle)+'</div>');
+};
+$("supProblemFb").onclick = () => {
+  const r = supCurrentResearch();
+  supOpenReview({stage:"Problem Statement", version:"", fileName:"", submissionId:""},
+    '<div class="prop">'+propItem("Problem statement", r.problemStatement)+propItem("Research objectives", r.objectives)+propItem("Research questions", r.researchQuestions)+'</div>');
+};
 $("supRefresh").onclick = () => supLoad(state.sup.current && state.sup.current.studentId);
 $("supResetPin").onclick = async () => {
   const st = state.sup.current;
@@ -1071,6 +1251,20 @@ $("supToggleStatus").onclick = async () => {
 /* =========================================================
    DIAGNOSTICS (supervisor only; nothing runs before sign-in)
    ========================================================= */
+$("supDelete").onclick = async () => {
+  const st = state.sup.current; if(!st) return;
+  const n = supStudentSubs().length;
+  const typed = prompt("REMOVE " + st.studentName + " (" + st.studentId + ")?\n\nThis deletes their profile, topic, chapters, feedback and " + n + " submission record(s), and moves their Drive folder to the Drive bin. A copy of the records is kept in the 'DeletedStudents' sheet. Files already archived on GitHub are NOT touched.\n\nType the student's full name to confirm:");
+  if(typed === null) return;
+  const btn = $("supDelete"); btn.disabled = true;
+  try{
+    const r = await api("deleteStudent", {studentId:st.studentId, confirmName:typed.trim()}, 60000);
+    alert(st.studentName + " has been removed.\n\n" + r.drive + "\n" + r.github);
+    await supLoad();
+  }catch(err){ alert(err.message); }
+  finally{ btn.disabled = !state.sup.students.length; }
+};
+
 let diagRunning = false;
 function diagLog(m){ const b=$("diagLog"); b.textContent += "\n["+new Date().toLocaleTimeString()+"] "+m; b.scrollTop=b.scrollHeight; }
 function setDiag(id, st, text){ const el=$(id); el.className="diag-status "+(st==="testing"?"diag-testing":st==="ok"?"diag-ok":st==="error"?"diag-error":"diag-wait"); el.textContent=text; }
@@ -1273,4 +1467,5 @@ window.addEventListener("offline", () => { setDiag("diagNetwork","error","offlin
 </script>
 </body>
 </html>
+
 
