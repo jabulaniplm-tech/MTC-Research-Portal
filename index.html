@@ -151,14 +151,20 @@ body.v9-locked > .container {
   pointer-events: none;
   user-select: none;
 }
+/* V10.1 FIX: the gate itself now scrolls. The panel is centred with
+   margin:auto, so it sits in the middle when it fits and scrolls from
+   the top (nothing cut off) when it is taller than the screen. */
 .v9-gate {
   position: fixed;
   inset: 0;
   z-index: 5000;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 18px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   background:
     radial-gradient(circle at 20% 10%, rgba(19,184,176,.18), transparent 32%),
     radial-gradient(circle at 85% 85%, rgba(245,190,50,.16), transparent 34%),
@@ -167,6 +173,8 @@ body.v9-locked > .container {
 .v9-gate.hidden { display:none; }
 .v9-panel {
   width: min(560px, 100%);
+  margin: auto;
+  flex: none;
   background:#fff;
   border-radius:24px;
   overflow:hidden;
@@ -226,6 +234,22 @@ body.v9-locked > .container {
   .v9-panel{border-radius:20px}
   .v9-content{padding:18px}
   .v9-role{min-height:120px}
+}
+
+/* V10.1: compact mode while a long form (create profile) is open, so the
+   form and its messages fit on small screens. Also applies on short screens. */
+.v9-panel.compact .v9-brand{padding:12px 16px}
+.v9-panel.compact .v9-brand .v9-logo,
+.v9-panel.compact .v9-brand p{display:none}
+.v9-panel.compact .v9-brand h1{font-size:18px}
+.v9-panel.compact .v9-content{padding:14px}
+.v9-panel.compact #v9StudentForm{margin-top:0;padding:12px}
+.v9-panel.compact #v9NewStudentPanel{margin-top:8px !important;padding:12px}
+.v9-panel.compact .v9-back{margin-top:4px}
+@media(max-height:760px){
+  .v9-brand{padding:16px 18px 14px}
+  .v9-brand .v9-logo{width:52px;height:52px;font-size:16px;margin-bottom:8px}
+  .v9-gate{padding:10px}
 }
 
 
@@ -289,7 +313,7 @@ button:disabled{opacity:.6;cursor:not-allowed}
 
 <!-- ================= SIGN-IN GATE ================= -->
 <div id="v9Gate" class="v9-gate" aria-modal="true" role="dialog">
-  <div class="v9-panel">
+  <div class="v9-panel" id="v9Panel">
     <div class="v9-brand">
       <div class="v9-logo">MTC</div>
       <h1>Research Supervision Portal</h1>
@@ -350,25 +374,26 @@ button:disabled{opacity:.6;cursor:not-allowed}
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             <div>
               <label for="v9NewFirstName">First Name</label>
-              <input id="v9NewFirstName" placeholder="First name" maxlength="60" style="width:100%;box-sizing:border-box;">
+              <input id="v9NewFirstName" name="mtc-first-name" autocomplete="off" placeholder="First name" maxlength="60" style="width:100%;box-sizing:border-box;">
             </div>
             <div>
               <label for="v9NewSurname">Surname</label>
-              <input id="v9NewSurname" placeholder="Surname" maxlength="60" style="width:100%;box-sizing:border-box;">
+              <input id="v9NewSurname" name="mtc-surname" autocomplete="off" placeholder="Surname" maxlength="60" style="width:100%;box-sizing:border-box;">
             </div>
           </div>
 
           <label for="v9NewProgramme">Programme</label>
-          <input id="v9NewProgramme" placeholder="Programme" maxlength="100">
+          <input id="v9NewProgramme" name="mtc-programme" autocomplete="off" placeholder="Programme" maxlength="100">
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             <div>
               <label for="v9NewEmail">Email</label>
-              <input id="v9NewEmail" type="email" placeholder="student@example.com" maxlength="120" style="width:100%;box-sizing:border-box;">
+              <!-- readonly until tapped: stops the browser auto-filling a saved username here -->
+              <input id="v9NewEmail" name="mtc-student-email" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')" placeholder="student@example.com" maxlength="120" style="width:100%;box-sizing:border-box;">
             </div>
             <div>
               <label for="v9NewPhone">Phone</label>
-              <input id="v9NewPhone" type="tel" placeholder="07XXXXXXXX" maxlength="30" style="width:100%;box-sizing:border-box;">
+              <input id="v9NewPhone" name="mtc-student-phone" type="tel" autocomplete="off" placeholder="07XXXXXXXX" maxlength="30" style="width:100%;box-sizing:border-box;">
             </div>
           </div>
 
@@ -668,11 +693,13 @@ button:disabled{opacity:.6;cursor:not-allowed}
 
 <script>
 /* ==========================================================
-   MTC RESEARCH SUPERVISION PORTAL — V10 (secure front end)
+   MTC RESEARCH SUPERVISION PORTAL — V10.1 (secure front end)
    HTML -> Apps Script (token-based) -> Drive -> GitHub
    - No password or student data lives in this file.
    - Only a session token is kept, in sessionStorage (cleared when the tab closes).
    - Every permission check is made by the server; this page only displays.
+   V10.1: scrollable sign-in screen, compact create-profile view,
+          email autofill protection + clear client-side email check.
    ========================================================== */
 const CLOUD = {
   URL: "https://script.google.com/macros/s/AKfycbw1PxPV8SU0tbvDYKsPxM7xvGJX-puZtE9khtcJPCOhxIKY1R_y_E8Zu77E9UHSfYyb/exec",
@@ -1313,12 +1340,20 @@ window.addEventListener("offline", () => { setDiag("diagNetwork","error","offlin
    SIGN-IN GATE
    ========================================================= */
 (function(){
-  const gate=$("v9Gate"), roleGrid=$("v9RoleGrid"), supForm=$("v9SupervisorForm"), stuForm=$("v9StudentForm");
+  const gate=$("v9Gate"), panel=$("v9Panel"), roleGrid=$("v9RoleGrid"), supForm=$("v9SupervisorForm"), stuForm=$("v9StudentForm");
   const supMsg=$("v9SupervisorMsg"), stuMsg=$("v9StudentMsg"), select=$("v9StudentSelect");
   const newPanel=$("v9NewStudentPanel"), pinPanel=$("v9ChangePinPanel"), signInBlock=$("v9SignInBlock");
   let loginPin = "";   // kept in memory only, for the forced PIN change
 
-  function msg(el, text, ok){ el.textContent = text; el.style.color = ok ? "#166534" : "#b91c1c"; }
+  /* V10.1: show a message and scroll it into view so it is never hidden below the fold */
+  function msg(el, text, ok){
+    el.textContent = text; el.style.color = ok ? "#166534" : "#b91c1c";
+    if(text && el.scrollIntoView){ try{ el.scrollIntoView({block:"nearest", behavior:"smooth"}); }catch(e){} }
+  }
+  function setCompact(on){
+    panel.classList.toggle("compact", !!on);
+    gate.scrollTop = 0;
+  }
 
   function showForm(which){
     roleGrid.style.display = "none"; $("v9Question").style.display = "none";
@@ -1334,6 +1369,7 @@ window.addEventListener("offline", () => { setDiag("diagNetwork","error","offlin
     newPanel.classList.remove("open"); pinPanel.classList.remove("open"); signInBlock.style.display = "";
     supMsg.textContent = ""; stuMsg.textContent = "";
     $("v9SupervisorPassword").value = ""; $("v9StudentPin").value = ""; loginPin = "";
+    setCompact(false);
   }
 
   async function loadNames(selectId){
@@ -1418,21 +1454,34 @@ window.addEventListener("offline", () => { setDiag("diagNetwork","error","offlin
   });
 
   // registration
-  $("v9NewStudentBtn").addEventListener("click", () => { newPanel.classList.add("open"); signInBlock.style.display = "none"; msg(stuMsg, "", true); });
-  $("v9CancelNewStudent").addEventListener("click", () => { newPanel.classList.remove("open"); signInBlock.style.display = ""; });
+  $("v9NewStudentBtn").addEventListener("click", () => {
+    newPanel.classList.add("open"); signInBlock.style.display = "none"; msg(stuMsg, "", true);
+    $("v9NewEmail").value = "";                       // discard anything the browser pre-filled
+    $("v9NewEmail").setAttribute("readonly", "");     // re-arm the autofill guard
+    setCompact(true);
+  });
+  $("v9CancelNewStudent").addEventListener("click", () => {
+    newPanel.classList.remove("open"); signInBlock.style.display = ""; setCompact(false);
+  });
   $("v9RegisterStudent").addEventListener("click", async () => {
     const m = $("v9NewStudentMsg");
     const sur = $("v9NewSurname").value.trim(), first = $("v9NewFirstName").value.trim();
     if(!sur || !first){ msg(m, "Surname and First Name are required.", false); return; }
+    const email = $("v9NewEmail").value.trim();
+    if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
+      msg(m, "The Email box must look like name@example.com. Please check it.", false);
+      $("v9NewEmail").removeAttribute("readonly"); $("v9NewEmail").focus();
+      return;
+    }
     const p1 = $("v9NewPin").value, p2 = $("v9NewPin2").value;
     if(p1 !== p2){ msg(m, "The PINs do not match.", false); return; }
     const btn = $("v9RegisterStudent"); btn.disabled = true; msg(m, "Creating profile…", true);
     try{
       const d = await api("registerStudent", {
-        studentName: first + " " + sur, programme: $("v9NewProgramme").value, email: $("v9NewEmail").value,
+        studentName: first + " " + sur, programme: $("v9NewProgramme").value, email: email,
         phone: $("v9NewPhone").value, pin: p1
       });
-      newPanel.classList.remove("open"); signInBlock.style.display = "";
+      newPanel.classList.remove("open"); signInBlock.style.display = ""; setCompact(false);
       ["v9NewSurname","v9NewFirstName","v9NewProgramme","v9NewEmail","v9NewPhone","v9NewPin","v9NewPin2"].forEach(i => $(i).value = "");
       await loadNames(d.status === "Active" ? d.studentId : "");
       msg(stuMsg, "✓ " + d.message, true);
@@ -1469,3 +1518,4 @@ window.addEventListener("offline", () => { setDiag("diagNetwork","error","offlin
 </html>
 
 
+     
