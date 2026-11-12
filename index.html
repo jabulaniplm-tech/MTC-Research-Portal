@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+  <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -291,6 +292,8 @@ body.v9-locked > .container {
 input[readonly]{background:#f1f5f9;color:#475569}
 .action.danger{background:#b91c1c}
 .prop{text-align:left;margin-top:14px}
+.prop-sum{text-align:left;margin-top:8px}
+.prop-sum-row{display:flex;justify-content:space-between;align-items:center;gap:8px;background:#fff;border:1px solid #e2e8f0;border-radius:9px;padding:9px 12px;margin-bottom:6px;font-weight:700;color:#0b2a5b;font-size:14px}
 .prop-item{background:#fff;border:1px solid #e2e8f0;border-radius:9px;padding:10px 12px;margin-bottom:8px}
 .prop-item .label{font-weight:800;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .prop-text{white-space:pre-wrap;line-height:1.45;font-size:14px;color:#172033;font-weight:400}
@@ -1179,13 +1182,14 @@ function propItem(label, text, badge){
   return '<div class="prop-item"><span class="label"><span>'+esc(label)+'</span>'+(badge||"")+'</span><div class="prop-text">'+(text ? esc(text) : '<span class="muted">Not provided yet.</span>')+'</div></div>';
 }
 function supProposalHtml(st, res){
+  /* Compact summary only. The full text opens in a popup via the REVIEW buttons. */
   res = res || {};
-  return '<div class="prop">'+
-    propItem("Research topic", res.researchTitle, supBadge("Research Topic", st.studentId))+
-    propItem("Problem statement", res.problemStatement, supBadge("Problem Statement", st.studentId))+
-    propItem("Research objectives", res.objectives)+
-    propItem("Research questions", res.researchQuestions)+
-    '<div class="muted small">The decision on <strong>Problem statement</strong> covers the problem statement, objectives and research questions together.</div></div>';
+  const filled = v => v && String(v).trim() ? '<span class="badge ok">Provided</span>' : '<span class="badge">Not provided</span>';
+  const row = (label, badge) => '<div class="prop-sum-row"><span>'+label+'</span>'+badge+'</div>';
+  return '<div class="prop-sum">'+
+    row("Research topic", filled(res.researchTitle)+" "+supBadge("Research Topic", st.studentId))+
+    row("Problem, objectives &amp; questions", filled(res.problemStatement)+" "+supBadge("Problem Statement", st.studentId))+
+    '<div class="muted small" style="margin-top:6px">Press <strong>REVIEW TOPIC</strong> or <strong>REVIEW PROBLEM, OBJECTIVES &amp; QUESTIONS</strong> to read the full text in a pop-up window.</div></div>';
 }
 function supCurrentResearch(){
   const id = state.sup.current.studentId;
@@ -1251,12 +1255,12 @@ $("supNext").onclick = () => { if(state.sup.index < state.sup.students.length - 
 $("supOpenSubs").onclick = () => { supRenderSubs(); openModal("supSubsModal"); };
 $("supTopicFb").onclick = () => {
   const r = supCurrentResearch();
-  supOpenReview({stage:"Research Topic", version:"", fileName:"", submissionId:""}, '<div class="prop">'+propItem("Research topic", r.researchTitle)+'</div>');
+  supOpenReview({stage:"Research Topic", version:"", fileName:"", submissionId:""}, '<div class="prop">'+propItem("Research topic", r.researchTitle, supBadge("Research Topic", state.sup.current.studentId))+'</div>');
 };
 $("supProblemFb").onclick = () => {
   const r = supCurrentResearch();
   supOpenReview({stage:"Problem Statement", version:"", fileName:"", submissionId:""},
-    '<div class="prop">'+propItem("Problem statement", r.problemStatement)+propItem("Research objectives", r.objectives)+propItem("Research questions", r.researchQuestions)+'</div>');
+    '<div class="prop">'+propItem("Problem statement", r.problemStatement, supBadge("Problem Statement", state.sup.current.studentId))+propItem("Research objectives", r.objectives)+propItem("Research questions", r.researchQuestions)+'</div>');
 };
 $("supRefresh").onclick = () => supLoad(state.sup.current && state.sup.current.studentId);
 $("supResetPin").onclick = async () => {
@@ -1516,6 +1520,3 @@ window.addEventListener("offline", () => { setDiag("diagNetwork","error","offlin
 </script>
 </body>
 </html>
-
-
-     
