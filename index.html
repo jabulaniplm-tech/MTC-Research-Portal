@@ -1,5 +1,4 @@
-
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -625,6 +624,8 @@ button:disabled{opacity:.6;cursor:not-allowed}
         <button class="action secondary" type="button" id="supResetPin" disabled>🔑 RESET PIN</button>
         <button class="action secondary" type="button" id="supToggleStatus" disabled>⛔ SUSPEND</button>
         <button class="action danger" type="button" id="supDelete" disabled>🗑 REMOVE STUDENT</button>
+        <button class="action green" type="button" id="supOpenRecords">📋 VIEW RECORDS</button>
+<button class="action green" type="button" id="supOpenDesktop">💾 DESKTOP FOLDERS</button>
         <button class="action secondary" type="button" id="supRefresh">↻ REFRESH</button>
       </div>
     </div>
@@ -691,6 +692,56 @@ button:disabled{opacity:.6;cursor:not-allowed}
       <p class="muted small">Give this PIN to the student privately. It is shown only once, and the student must choose a new PIN at their next sign-in.</p>
     </div>
     <div class="modal-foot"><button type="button" class="action" data-close>DONE</button></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="recModal" aria-hidden="true">
+  <div class="modal" style="max-width:1000px" role="dialog" aria-modal="true" aria-label="Records">
+    <div class="modal-head"><h2>📋 Records</h2><button type="button" class="modal-x" data-close aria-label="Close">✕</button></div>
+    <div class="modal-body">
+      <div class="btn-row" style="margin:0 0 10px" id="recTabs"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input id="recSearch" placeholder="Search this table…" style="flex:1;min-width:180px;margin:0">
+        <button type="button" class="action secondary" id="recCsv">⬇ CSV</button>
+        <button type="button" class="action secondary" id="recReload">↻ Reload</button>
+      </div>
+      <div class="muted small" id="recCount" style="margin:8px 0"></div>
+      <div style="overflow:auto;max-height:55vh;border:1px solid #e2e8f0;border-radius:8px">
+        <table id="recTable" style="border-collapse:collapse;width:100%;font-size:13px"></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="dtModal" aria-hidden="true">
+  <div class="modal" style="max-width:760px" role="dialog" aria-modal="true" aria-label="Desktop folders">
+    <div class="modal-head"><h2>💾 Desktop student folders</h2><button type="button" class="modal-x" data-close aria-label="Close">✕</button></div>
+    <div class="modal-body">
+      <p class="muted small" id="dtSupport"></p>
+      <div class="btn-row" style="margin-top:0">
+        <button type="button" class="action" id="dtPick">📁 CHOOSE MAIN FOLDER</button>
+        <button type="button" class="action secondary hidden" id="dtReconnect">🔓 RECONNECT</button>
+      </div>
+      <div class="muted small" id="dtRootName" style="margin:8px 0"></div>
+
+      <div id="dtTools" class="hidden">
+        <label class="label" for="dtNewName">Add a folder (type a name or pick a student)</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="dtNewName" list="dtStudentList" placeholder="Student name" style="flex:1;min-width:200px;margin:0">
+          <datalist id="dtStudentList"></datalist>
+          <button type="button" class="action" id="dtAdd">➕ ADD</button>
+          <button type="button" class="action secondary" id="dtAddAll">➕ ADD ALL STUDENTS</button>
+        </div>
+
+        <h3 style="margin:16px 0 6px">Folders</h3>
+        <div id="dtFolders" class="muted">No folders yet.</div>
+
+        <div class="btn-row">
+          <button type="button" class="action green" id="dtSync">⬇ DOWNLOAD NEW SUBMISSIONS INTO FOLDERS</button>
+        </div>
+        <div id="dtLog" class="diag-log" style="max-height:200px">Ready.</div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1517,6 +1568,201 @@ window.addEventListener("offline", () => { setDiag("diagNetwork","error","offlin
   try{ $("supSupervisorName").value = sessionStorage.getItem("mtc_supervisor_name") || ""; }catch(e){}
 })();
 
+</script>
+<script>
+/* =========================================================
+   SUPERVISOR: RECORDS VIEWER
+   ========================================================= */
+const REC = {
+  students:    {label:"Students",    get:()=>state.sup.students,    cols:["studentId","studentName","programme","email","phone","status","supervisor","lastLoginAt"]},
+  research:    {label:"Research",    get:()=>state.sup.research,    cols:["studentName","researchTitle","problemStatement","objectives","researchQuestions","updatedAt"]},
+  chapters:    {label:"Chapters",    get:()=>state.sup.chapters,    cols:["studentName","chapter","status","notes","updatedAt"]},
+  submissions: {label:"Submissions", get:()=>state.sup.submissions, cols:["studentName","stage","version","fileName","reviewStatus","overallStatus","submittedAt"]},
+  feedback:    {label:"Feedback",    get:()=>state.sup.feedback,    cols:["studentName","stage","status","feedback","supervisor","timestamp"]}
+};
+let recKey = "students";
+
+async function recReload(){
+  const d = await api("supervisorData");
+  Object.assign(state.sup, {students:d.students||[], research:d.research||[], chapters:d.chapters||[], submissions:d.submissions||[], feedback:d.feedback||[]});
+}
+function recRows(){
+  const q = $("recSearch").value.trim().toLowerCase();
+  const t = REC[recKey];
+  return (t.get() || []).filter(r => !q || t.cols.some(c => String(r[c] ?? "").toLowerCase().includes(q)));
+}
+function recCell(c, v){
+  if(/(At|timestamp)$/.test(c)) return esc(fmtDate(v));
+  return esc(v);
+}
+function recRender(){
+  const t = REC[recKey], rows = recRows();
+  $("recTabs").innerHTML = Object.keys(REC).map(k =>
+    '<button type="button" class="action'+(k===recKey?'':' secondary')+'" data-rec="'+k+'" style="padding:7px 11px;font-size:12px">'+REC[k].label+' ('+(REC[k].get()||[]).length+')</button>').join("");
+  $("recTable").innerHTML =
+    '<thead><tr>'+t.cols.map(c=>'<th style="position:sticky;top:0;background:#0b2a5b;color:#fff;text-align:left;padding:8px;white-space:nowrap">'+esc(c)+'</th>').join("")+'</tr></thead>'+
+    '<tbody>'+rows.map(r=>'<tr>'+t.cols.map(c=>'<td style="padding:7px 8px;border-top:1px solid #e2e8f0;vertical-align:top;max-width:320px;white-space:pre-wrap;word-break:break-word">'+recCell(c,r[c])+'</td>').join("")+'</tr>').join("")+'</tbody>';
+  $("recCount").textContent = rows.length + " row" + (rows.length===1?"":"s");
+}
+function recCsv(){
+  const t = REC[recKey], rows = recRows();
+  const q = v => '"' + String(v ?? "").replace(/"/g,'""') + '"';
+  const csv = "\ufeff" + [t.cols.map(q).join(",")].concat(rows.map(r => t.cols.map(c => q(r[c])).join(","))).join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
+  a.download = "mtc-" + recKey + "-" + new Date().toISOString().slice(0,10) + ".csv";
+  a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+$("supOpenRecords").addEventListener("click", async () => {
+  openModal("recModal");
+  $("recCount").textContent = "Loading…";
+  try{ await recReload(); }catch(e){ $("recCount").textContent = e.message; return; }
+  recRender();
+});
+$("recTabs").addEventListener("click", e => { const b = e.target.closest("[data-rec]"); if(b){ recKey = b.dataset.rec; recRender(); }});
+$("recSearch").addEventListener("input", recRender);
+$("recCsv").addEventListener("click", recCsv);
+$("recReload").addEventListener("click", async () => { $("recCount").textContent="Loading…"; try{ await recReload(); recRender(); }catch(e){ $("recCount").textContent = e.message; }});
+
+/* =========================================================
+   SUPERVISOR: DESKTOP FOLDERS (Chrome / Edge on a computer)
+   ========================================================= */
+const DT = {root:null};
+const DT_OK = "showDirectoryPicker" in window;
+
+function idbOpen(){ return new Promise((res,rej)=>{ const r=indexedDB.open("mtc_supervisor",1); r.onupgradeneeded=()=>r.result.createObjectStore("kv"); r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
+async function idbGet(k){ const db=await idbOpen(); return new Promise(res=>{ const q=db.transaction("kv").objectStore("kv").get(k); q.onsuccess=()=>res(q.result); q.onerror=()=>res(null); }); }
+async function idbSet(k,v){ const db=await idbOpen(); return new Promise(res=>{ const t=db.transaction("kv","readwrite"); t.objectStore("kv").put(v,k); t.oncomplete=()=>res(); t.onerror=()=>res(); }); }
+
+function safeName(n){
+  return String(n||"").replace(/[<>:"\/\\|?*\u0000-\u001F]/g,"").replace(/\s+/g," ").trim().replace(/[. ]+$/,"").slice(0,100);
+}
+function dtLog(t){ const l=$("dtLog"); l.textContent += "\n" + t; l.scrollTop = l.scrollHeight; }
+function b64ToBytes(b64){ const s=atob(b64), a=new Uint8Array(s.length); for(let i=0;i<s.length;i++) a[i]=s.charCodeAt(i); return a; }
+
+async function dtFolders(){
+  const out = [];
+  for await (const [name, h] of DT.root.entries()) if(h.kind === "directory") out.push({name, handle:h});
+  return out.sort((a,b)=>a.name.localeCompare(b.name));
+}
+async function dtCount(h){ let n=0; for await (const _ of h.values()) n++; return n; }
+
+async function dtRender(){
+  const connected = !!DT.root;
+  $("dtTools").classList.toggle("hidden", !connected);
+  $("dtRootName").textContent = connected ? "Main folder: " + DT.root.name : "No main folder chosen yet.";
+  if(!connected) return;
+  $("dtStudentList").innerHTML = (state.sup.students||[]).map(s=>'<option value="'+esc(s.studentName)+'">').join("");
+  const folders = await dtFolders();
+  const names = new Set((state.sup.students||[]).map(s => safeName(s.studentName).toLowerCase()));
+  if(!folders.length){ $("dtFolders").textContent = "No folders yet. Add one above."; return; }
+  const rows = [];
+  for(const f of folders){
+    const n = await dtCount(f.handle);
+    const known = names.has(f.name.toLowerCase());
+    rows.push('<div class="sup-sub"><div><div class="sup-sub-title">'+esc(f.name)+'</div><div class="sup-sub-meta">'+n+' item(s) · '+(known?'matches a student':'does not match any student (will be skipped)')+'</div></div>'+
+      '<button type="button" class="action danger" data-del="'+esc(f.name)+'" style="padding:7px 11px;font-size:12px">DELETE</button></div>');
+  }
+  $("dtFolders").innerHTML = rows.join("");
+}
+
+async function dtPermission(ask){
+  if(!DT.root) return false;
+  const o = {mode:"readwrite"};
+  if(await DT.root.queryPermission(o) === "granted") return true;
+  return ask && (await DT.root.requestPermission(o)) === "granted";
+}
+
+$("supOpenDesktop").addEventListener("click", async () => {
+  openModal("dtModal");
+  $("dtSupport").textContent = DT_OK
+    ? "Choose a folder once (for example Desktop\\MTC Submissions; Chrome does not allow the Desktop folder itself). The portal then keeps one folder per student inside it and saves their submissions there. You can also add or delete folders in File Explorer."
+    : "This needs Google Chrome or Microsoft Edge on a computer. Your current browser cannot save into folders.";
+  if(!DT_OK) return;
+  try{ if(!(state.sup.students||[]).length) await recReload(); }catch(e){}
+  if(!DT.root){ try{ DT.root = await idbGet("root"); }catch(e){} }
+  if(DT.root && !(await dtPermission(false))){
+    $("dtReconnect").classList.remove("hidden");
+    $("dtRootName").textContent = "Saved folder: " + DT.root.name + ". Click RECONNECT to allow access again.";
+    $("dtTools").classList.add("hidden");
+    return;
+  }
+  $("dtReconnect").classList.add("hidden");
+  dtRender();
+});
+$("dtPick").addEventListener("click", async () => {
+  if(!DT_OK) return;
+  try{
+    DT.root = await window.showDirectoryPicker({id:"mtc-supervision", mode:"readwrite"});
+    await idbSet("root", DT.root);
+    $("dtReconnect").classList.add("hidden");
+    dtRender();
+  }catch(e){ if(e.name !== "AbortError") $("dtRootName").textContent = "Could not open that folder: " + e.message; }
+});
+$("dtReconnect").addEventListener("click", async () => {
+  if(await dtPermission(true)){ $("dtReconnect").classList.add("hidden"); dtRender(); }
+});
+
+async function dtAddFolder(name){
+  const n = safeName(name);
+  if(!n) return false;
+  await DT.root.getDirectoryHandle(n, {create:true});
+  return true;
+}
+$("dtAdd").addEventListener("click", async () => {
+  const v = $("dtNewName").value;
+  if(!safeName(v)) return;
+  await dtAddFolder(v); $("dtNewName").value = ""; dtRender();
+});
+$("dtAddAll").addEventListener("click", async () => {
+  for(const s of (state.sup.students||[])) await dtAddFolder(s.studentName);
+  dtRender();
+});
+$("dtFolders").addEventListener("click", async e => {
+  const b = e.target.closest("[data-del]"); if(!b) return;
+  const name = b.dataset.del;
+  const h = await DT.root.getDirectoryHandle(name);
+  const n = await dtCount(h);
+  const msg = n ? 'Delete the folder "'+name+'" AND the '+n+' item(s) inside it from your computer? This cannot be undone.' : 'Delete the empty folder "'+name+'"?';
+  if(!confirm(msg)) return;
+  await DT.root.removeEntry(name, {recursive:true});
+  dtRender();
+});
+
+$("dtSync").addEventListener("click", async () => {
+  const btn = $("dtSync");
+  if(!(await dtPermission(true))){ dtLog("Folder access was not granted."); return; }
+  btn.disabled = true; $("dtLog").textContent = "Refreshing records…";
+  let saved = 0, skipped = 0, nofolder = new Set(), failed = 0;
+  try{
+    await recReload();
+    const dirs = new Map();
+    for(const f of await dtFolders()) dirs.set(f.name.toLowerCase(), f.handle);
+    const subs = (state.sup.submissions||[]).filter(s => s.driveFileId && s.submissionId);
+    dtLog(subs.length + " submission(s) on record.");
+    for(const s of subs){
+      const dir = dirs.get(safeName(s.studentName).toLowerCase());
+      if(!dir){ nofolder.add(s.studentName); continue; }
+      const num = String(Math.max(STAGES.indexOf(s.stage),0)+1).padStart(2,"0");
+      const fname = safeName(num+" "+s.stage+" v"+s.version+" - "+s.fileName).slice(0,150);
+      let exists = true;
+      try{ await dir.getFileHandle(fname); }catch(e){ exists = false; }
+      if(exists){ skipped++; continue; }
+      try{
+        dtLog("Downloading: " + s.studentName + " / " + fname);
+        const r = await api("getSubmissionFile", {submissionId:s.submissionId}, 120000);
+        const fh = await dir.getFileHandle(fname, {create:true});
+        const w = await fh.createWritable();
+        await w.write(b64ToBytes(r.data)); await w.close();
+        saved++;
+      }catch(err){ failed++; dtLog("  FAILED: " + err.message); }
+    }
+    dtLog("Done. Saved " + saved + ", already there " + skipped + ", failed " + failed + ".");
+    if(nofolder.size) dtLog("No folder for: " + Array.from(nofolder).join(", ") + " (use ADD ALL STUDENTS to create them).");
+    dtRender();
+  }catch(err){ dtLog("Stopped: " + err.message); }
+  finally{ btn.disabled = false; }
+});
 </script>
 </body>
 </html>
